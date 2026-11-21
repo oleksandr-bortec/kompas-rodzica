@@ -1,14 +1,27 @@
 {
-  "$comment": "Parametry silnika reguł. Źródło: opis wyzwania ZUS (PDF 2). Wartości oznaczone null — brak w materiałach, do uzupełnienia z załącznika ZUS (TODO).",
+  "$comment": "Parametry silnika reguł. Źródła: opis wyzwania ZUS, Załącznik do Template Wyzwania HackNation 2026, ustawa zasiłkowa (art. 2a, 4, 29–31, 36, 48). Wartość null = brak w materiałach ZUS.",
   "version": "2026-01-01",
   "effectiveFrom": "2026-01-01",
   "eligibility": {
     "waitingDaysMandatory": 30,
-    "waitingDaysVoluntary": 90
+    "waitingDaysVoluntary": 90,
+    "maxGapDaysForContinuity": 30
   },
   "payer": {
     "employerPaysAboveInsured": 20,
     "insuredCountDate": "11-30"
+  },
+  "debt": {
+    "$comment": "art. 2a ustawy zasiłkowej: działalność i osoby współpracujące — zadłużenie > 1% minimalnego wynagrodzenia w dniu powstania prawa blokuje wypłatę do spłaty; prawo przedawnia się po 6 mies.",
+    "thresholdPercentOfMinWage": 1,
+    "prescriptionMonths": 6
+  },
+  "base": {
+    "$comment": "Załącznik: podstawa = przeciętne wynagrodzenie / przychód z 12 mies. pomniejszone o 13,71%.",
+    "socialContributionPercent": 13.71,
+    "monthsBack": 12,
+    "minimumWage": 4806,
+    "voluntarySicknessMaxDeclaredBase": 23550
   },
   "sickness": {
     "employerPaidDaysPerYear": 33,
@@ -18,7 +31,7 @@
   },
   "maternity": {
     "weeksOneChild": 20,
-    "weeksByChildren": { "1": 20, "2": null, "3": null, "4": null, "5": null },
+    "weeksByChildren": { "1": 20, "2": 31, "3": 33, "4": 35, "5": 37 },
     "maxWeeksBeforeBirth": 6,
     "motherOnlyWeeksAfterBirth": 14,
     "ratePercent": 100
@@ -26,7 +39,8 @@
   "parental": {
     "poolWeeks": 41,
     "poolWeeksMultiple": 43,
-    "poolWeeksZaZyciem": null,
+    "poolWeeksZaZyciem": 65,
+    "poolWeeksZaZyciemMultiple": 67,
     "nonTransferableWeeksPerParent": 9,
     "maxParts": 5,
     "untilChildAgeYearEnd": 6,
@@ -43,14 +57,17 @@
     "ratePercent": 100
   },
   "supplementaryMaternity": {
-    "weeks": null,
+    "$comment": "1 tydzień za każdy tydzień hospitalizacji (niepełny tydzień w górę); limit 15 tyg. (przed 28. tyg. ciąży lub masa ≤ 1000 g), 8 tyg. w pozostałych przypadkach.",
+    "maxWeeksExtremelyPreterm": 15,
+    "maxWeeksOther": 8,
     "ratePercent": 100
   },
   "adoption": {
     "fosterMaxChildAgeYears": 7,
     "fosterMaxChildAgeYearsSchoolDeferred": 10,
     "adoptionMaxChildAgeYears": 14,
-    "weeks": null,
+    "weeksByChildren": { "1": 20, "2": 31, "3": 33, "4": 35, "5": 37 },
+    "minWeeks": 9,
     "ratePercent": 100
   },
   "stillbirth": {

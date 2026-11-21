@@ -162,5 +162,7 @@ zus-samples/
 
 .claude/settings.local.json
 
+# Testy na przykładowych sprawach ZUS — dane spraw nie mogą trafić do repo
+tests/cases/zus/
 # Vercel
 .vercel

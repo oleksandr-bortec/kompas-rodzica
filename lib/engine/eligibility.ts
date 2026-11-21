@@ -10,6 +10,7 @@
  */
 import type { Params } from "./params";
 import { addDays, addMonths, diffDays } from "./dates";
+import { plnText } from "./money";
 import type { EligibilityResult, InsurancePeriod, PlanInputParsed, TraceStep } from "./types";
 
 /** Polish plural for years: 1 rok, 2–4 lata, 5+ lat. */
@@ -63,25 +64,40 @@ export function periodOn(periods: InsurancePeriod[], date: string): InsurancePer
 }
 
 /**
- * Days of uninterrupted sickness insurance completed before `date`
- * (adjacent periods without a gap are joined). 0 if not insured on `date`.
+ * Days of sickness insurance counted for the waiting period before `date`
+ * (art. 4 ust. 2: earlier periods count if the gap was ≤ maxGapDays; gap days
+ * themselves are not counted). 0 if not insured on `date`.
  */
-export function continuousInsuranceDays(periods: InsurancePeriod[], date: string): number {
-  const sorted = periods.filter(hasSickness).sort((a, b) => a.from.localeCompare(b.from));
+export function continuousInsuranceDays(periods: InsurancePeriod[], date: string, maxGapDays = 0): number {
+  const sorted = periods.filter(hasSickness).sort((a, b) => b.from.localeCompare(a.from)); // newest first
   const current = sorted.find((p) => covers(p, date));
   if (!current) return 0;
+  let total = diffDays(current.from, date);
   let chainStart = current.from;
-  let changed = true;
-  while (changed) {
-    changed = false;
-    for (const p of sorted) {
-      if (p.from < chainStart && p.to !== null && p.to >= addDays(chainStart, -1)) {
-        chainStart = p.from;
-        changed = true;
-      }
-    }
+  for (const p of sorted) {
+    if (p === current || p.from >= chainStart || p.to === null) continue;
+    const end = p.to < chainStart ? p.to : addDays(chainStart, -1);
+    const gap = diffDays(end, chainStart) - 1;
+    if (gap > maxGapDays) break;
+    total += diffDays(p.from, end) + 1;
+    chainStart = p.from;
   }
-  return diffDays(chainStart, date);
+  return total;
+}
+
+/** Debt threshold (art. 2a): 1% of the minimum wage. */
+export function debtThreshold(params: Params): number {
+  return Math.round(params.base.minimumWage * params.debt.thresholdPercentOfMinWage) / 100;
+}
+
+/**
+ * Art. 2a: for people running a business (JDG) and their collaborators, contribution
+ * debt above 1% of the minimum wage on the day the right arises blocks the benefit
+ * until the whole debt is paid.
+ */
+export function debtBlocksBenefit(periods: InsurancePeriod[], date: string, debt: number | undefined, params: Params): boolean {
+  const p = periodOn(periods, date);
+  return !!p && p.title === "jdg" && (debt ?? 0) > debtThreshold(params);
 }
 
 export function sicknessWaitingDays(periods: InsurancePeriod[], date: string, params: Params): number {
@@ -100,7 +116,7 @@ export function checkEligibility(
   const date = input.eventDate;
 
   const insured = isInsuredOn(periods, date);
-  const days = continuousInsuranceDays(periods, date);
+  const days = continuousInsuranceDays(periods, date, params.eligibility.maxGapDaysForContinuity);
   const waiting = sicknessWaitingDays(periods, date, params);
   const sicknessOk = insured && days >= waiting;
 
@@ -117,7 +133,19 @@ export function checkEligibility(
   let eligible: boolean | null = insured;
   let reason = insured ? "Ubezpieczenie chorobowe w dniu zdarzenia." : "Brak ubezpieczenia chorobowego w dniu zdarzenia.";
 
-  if (insured && input.event !== "porod") {
+  if (insured && debtBlocksBenefit(periods, date, data.contributionDebt, params)) {
+    eligible = false;
+    reason = `Zadłużenie z tytułu składek (${plnText(data.contributionDebt ?? 0)}) przekracza 1% minimalnego wynagrodzenia (${plnText(debtThreshold(params))}) — zasiłek nie przysługuje do czasu spłaty całego zadłużenia.`;
+    trace.push({
+      id: `debt-${parent}`,
+      label: "Zadłużenie w składkach",
+      detail: reason,
+      rule: "art. 2a ustawy zasiłkowej · params.debt",
+      values: { zadluzenie: data.contributionDebt ?? 0, prog: debtThreshold(params) },
+    });
+  }
+
+  if (insured && eligible !== false && input.event !== "porod") {
     const age = input.childAgeYears;
     const max =
       input.event === "adopcja"

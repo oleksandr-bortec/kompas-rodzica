@@ -89,10 +89,20 @@ docs/                      # opis, ai-usage.md, OpenAPI, lista bibliotek
 | Ryzyka | fikcyjna umowa / JDG dla ubezpieczenia; podwyższenie podstawy w ciąży; brak ubezp. chorobowego w dniu porodu |
 | Ochrona (Kodeks pracy) | zakaz zwolnienia w ciąży i na urlopach; umowa terminowa kończąca się po 3. miesiącu ciąży przedłużona do porodu; nie dotyczy JDG |
 
-**Brakuje w materiałach (nie zgadywać, TODO + pytanie):** tabele długości i kwot
-(załącznik), wzór podstawy wymiaru zasiłku (w tym JDG i kilka tytułów), długość
-macierzyńskiego przy bliźniętach+, wydłużony rodzicielski „Za życiem", długość
-uzupełniającego, brutto vs netto.
+**Uzupełnione z materiałów ZUS** (`zus-samples/materialy`, poza repo): długości macierzyńskiego
+20/31/33/35/37 tyg. (tak samo przy adopcji, min. 9 tyg.), rodzicielski „Za życiem” 65/67 tyg.,
+uzupełniający (1 tydz. za tydz. szpitala, limit 8 / 15 tyg.), 81,5% bez 9 tyg. drugiego rodzica (70%),
+podstawa = średnia z 12 mies. − 13,71% (min. pełny etat: 4 806 zł − 13,71%; max dobrowolne: 20 321,30 zł),
+zadłużenie JDG > 1% minimalnego wynagrodzenia blokuje zasiłek do spłaty (art. 2a), przerwy ≤ 30 dni
+nie przerywają okresu wyczekiwania (art. 4 ust. 2), zasiłek macierzyński bez okresu wyczekiwania (art. 29),
+kwoty brutto, zaokrąglenie do grosza w górę od połowy.
+
+**Nadal brak / do zrobienia:** kwota świadczenia rodzicielskiego (minimum zasiłku, art. 31 ust. 3a),
+stawka dzienna dla niepełnych miesięcy (do potwierdzenia na decyzjach), obniżenie zasiłku przy pracy
+w czasie rodzicielskiego (art. 31 ust. 4a — proporcjonalnie), uzupełnianie niepełnych miesięcy w podstawie.
+
+**Próbki spraw ZUS:** `zus-samples/sprawy/` (skany, poza repo). Testy na nich tylko w
+`tests/cases/zus/` (też w `.gitignore`) — nigdy nie przepisuj danych spraw do commitowanych plików.
 
 ## Persony demo
 
