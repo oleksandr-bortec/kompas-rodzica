@@ -161,3 +161,6 @@ zus-samples/
 *.zus.pdf
 
 .claude/settings.local.json
+
+# Vercel
+.vercel
