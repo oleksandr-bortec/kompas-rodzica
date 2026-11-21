@@ -47,7 +47,7 @@ export default function PlanPage() {
   return (
     <div>
       <PageHeader
-        title={`Cześć, ${persona.a.name}${persona.b ? ` i ${persona.b.name}` : ""}`}
+        title={persona.id === "custom" ? "Twój plan" : `Cześć, ${persona.a.name}${persona.b ? ` i ${persona.b.name}` : ""}`}
         subtitle={
           days !== null && days > 0 ? `Do ${eventWord}: ${days} ${days === 1 ? "dzień" : "dni"} (${formatDate(persona.eventDate)})` : `Data ${eventWord}: ${formatDate(persona.eventDate)}`
         }
@@ -128,10 +128,10 @@ export default function PlanPage() {
             <span className="inline-flex items-center gap-1 rounded-full bg-kr-accent px-2.5 py-0.5 kr-caption text-kr-text">
               <CalendarClock className="size-3.5" aria-hidden /> Następny krok
             </span>
-            <p className="mt-3 kr-card-title">{persona.demoPlan.nextStep.title}</p>
+            <p className="mt-3 kr-card-title">{persona.demoPlan?.nextStep.title ?? "Sprawdź lub popraw swoje dane"}</p>
             {nextDeadline && <p className="mt-1 kr-small text-kr-text-2">{nextDeadline.label}: {formatDate(nextDeadline.date)}</p>}
             <Button asChild className="mt-4 h-12 w-full rounded-xl">
-              <Link href={persona.demoPlan.nextStep.href}>Zrób to teraz <ArrowRight aria-hidden /></Link>
+              <Link href={persona.demoPlan?.nextStep.href ?? "/dane-reczne"}>Zrób to teraz <ArrowRight aria-hidden /></Link>
             </Button>
           </Panel>
 
@@ -161,13 +161,13 @@ export default function PlanPage() {
             </Panel>
           )}
 
-          <Panel>
+          {persona.demoPlan && <Panel>
             <h2 className="kr-card-title">Dokumenty</h2>
             <p className="mt-1 kr-small text-kr-text-2">{persona.demoPlan.documents.length} do złożenia</p>
             <Button asChild variant="outline" className="mt-3 h-11 w-full rounded-xl">
               <Link href="/dokumenty">Zobacz listę</Link>
             </Button>
-          </Panel>
+          </Panel>}
         </aside>
       </div>
     </div>

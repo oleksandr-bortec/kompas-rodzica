@@ -42,7 +42,7 @@ function ParentCards({ d }: { d: ParentData }) {
               )}
             </div>
           ))}
-          <Field label="Przeciętna podstawa wymiaru (12 mies.)" value={formatPLN(d.avgMonthlyBase)} source="zus" action={<EditBtn />} />
+          <Field label="Przeciętna podstawa wymiaru (12 mies.)" value={d.avgMonthlyBase === null ? "Brak danych" : formatPLN(d.avgMonthlyBase)} source="zus" action={<EditBtn />} />
         </div>
       </Panel>
 
@@ -75,7 +75,7 @@ function ParentCards({ d }: { d: ParentData }) {
           <h2 className="kr-card-title">Zaświadczenie o niezaleganiu</h2>
           <SymulacjaBadge />
         </div>
-        {d.contributionDebt > 0 ? (
+        {d.contributionDebt !== undefined && d.contributionDebt > 0 ? (
           <ToneBox tone="danger" title={`Zaległość w składkach: ${formatPLN2(d.contributionDebt)}`} className="mt-3">
             Stan na dzień pobrania danych. Zobacz, co zrobić, w zakładce Ryzyka.
           </ToneBox>
@@ -90,6 +90,9 @@ function ParentCards({ d }: { d: ParentData }) {
 /** Ekran 3 — Twoje dane z ZUS. */
 export default function ZusDataPage() {
   const { persona } = usePersona();
+  if (persona.id === "custom") return (
+    <FlowShell><Button asChild><Link href="/dane-reczne">Edytuj wpisane dane</Link></Button></FlowShell>
+  );
   return (
     <FlowShell right={<SymulacjaBadge />}>
       <h1 className="kr-h1">Twoje dane z ZUS</h1>

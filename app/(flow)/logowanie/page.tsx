@@ -6,6 +6,7 @@ import { Check, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FlowShell } from "@/components/kr/flow-shell";
+import { usePersona } from "@/components/kr/persona-provider";
 import { PersonaSwitcher } from "@/components/kr/persona-switcher";
 import { Panel, SymulacjaBadge } from "@/components/kr/ui";
 
@@ -21,6 +22,7 @@ const DATA_SCOPE = [
 /** Ekran 2 — Logowanie (mObywatel) i zgoda. */
 export default function LoginPage() {
   const router = useRouter();
+  const { persona } = usePersona();
   const [step, setStep] = useState<"login" | "consent">("login");
   const [agreed, setAgreed] = useState(false);
 
@@ -45,7 +47,7 @@ export default function LoginPage() {
             <PersonaSwitcher />
           </Panel>
           <div className="mt-auto pt-6">
-            <Button size="lg" className="h-14 w-full rounded-2xl text-base" onClick={() => setStep("consent")}>
+            <Button size="lg" className="h-14 w-full rounded-2xl text-base" disabled={persona.id === "custom"} onClick={() => setStep("consent")}>
               Potwierdź logowanie
             </Button>
           </div>
