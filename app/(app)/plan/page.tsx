@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Building2, CalendarClock, ChevronRight, HelpCircle, Landmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,18 @@ const SEVERITY_TONE = { danger: "danger", warning: "warning", info: "info" } as 
 /** Ekran 5 — Plan (główny). Wszystkie liczby z lib/engine (buildPlan). */
 export default function PlanPage() {
   const { persona, plan, verdict } = usePlan();
-  const days = daysUntil(persona.eventDate);
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => {
+    const refresh = () => setNow(new Date());
+    refresh();
+    const timer = window.setInterval(refresh, 60_000);
+    window.addEventListener("focus", refresh);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+    };
+  }, []);
+  const days = now && daysUntil(persona.eventDate, now);
   const eventWord = persona.event === "porod" ? "terminu porodu" : "przyjęcia dziecka";
   const variantLabel = plan.variantApplied === "81.5" ? "81,5%" : "100% + 70%";
   const nextDeadline = plan.deadlines[0];
@@ -37,7 +49,7 @@ export default function PlanPage() {
       <PageHeader
         title={`Cześć, ${persona.a.name}${persona.b ? ` i ${persona.b.name}` : ""}`}
         subtitle={
-          days > 0 ? `Do ${eventWord}: ${days} dni (${formatDate(persona.eventDate)})` : `Data ${eventWord}: ${formatDate(persona.eventDate)}`
+          days !== null && days > 0 ? `Do ${eventWord}: ${days} ${days === 1 ? "dzień" : "dni"} (${formatDate(persona.eventDate)})` : `Data ${eventWord}: ${formatDate(persona.eventDate)}`
         }
       />
 
