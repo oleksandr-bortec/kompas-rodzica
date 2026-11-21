@@ -15,6 +15,7 @@ export interface InsurancePeriod {
   to: string | null;
   sicknessInsurance: "obowiazkowe" | "dobrowolne" | "brak";
   payerInsuredCount?: number; // stan na 30.11 roku poprzedniego
+  fixedTerm?: boolean; // umowa o pracę na czas określony
 }
 
 export interface Ezla {

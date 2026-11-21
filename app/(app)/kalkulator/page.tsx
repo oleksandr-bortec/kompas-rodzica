@@ -4,10 +4,12 @@ import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { usePersona } from "@/components/kr/persona-provider";
-import { PageHeader, Panel } from "@/components/kr/ui";
+import { Timeline } from "@/components/kr/timeline";
+import { usePlan } from "@/components/kr/use-plan";
+import { PageHeader, Panel, ToneBox } from "@/components/kr/ui";
 import { cn } from "@/lib/utils";
-import { getParams } from "@/lib/engine/params";
+import { formatPLN } from "@/lib/format";
+import { getParams, periods } from "@/lib/engine";
 
 function Segmented<T extends string>({ value, options, onChange }: { value: T; options: { v: T; l: string }[]; onChange: (v: T) => void }) {
   return (
@@ -40,23 +42,34 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
   );
 }
 
-/**
- * Ekran 6 — Kalkulator (scenariusze b–f, j). Skeleton: inputs + split of the pool from params.
- * Amounts will be wired to lib/engine in step 3.
- */
+/** Ekran 6 — Kalkulator (scenariusze b–f, j). Każda zmiana → buildPlan (silnik reguł). */
 export default function CalculatorPage() {
-  const { persona } = usePersona();
   const params = getParams();
   const [children, setChildren] = useState<"1" | "2+">("1");
   const [variant, setVariant] = useState<"81.5" | "100-70">("81.5");
   const [zaZyciem, setZaZyciem] = useState(false);
-  const [halfTime, setHalfTime] = useState(false);
-  const [adoption, setAdoption] = useState(persona.event === "adopcja");
-  const pool = children === "1" ? params.parental.poolWeeks : params.parental.poolWeeksMultiple;
-  const min = params.parental.nonTransferableWeeksPerParent;
-  const [partnerWeeks, setPartnerWeeks] = useState(min);
+  const [halfTimeA, setHalfTimeA] = useState(false);
+  const nChildren = children === "1" ? 1 : 2;
+  const pool = periods.parentalPoolWeeks(nChildren, zaZyciem, params);
+  const nt = params.parental.nonTransferableWeeksPerParent;
+  const [partnerWeeks, setPartnerWeeks] = useState(nt);
+  const max = pool !== null ? pool - nt : nt;
+  const wB = Math.min(Math.max(partnerWeeks, nt), max);
+
+  const { persona, plan } = usePlan(
+    {
+      variant,
+      parentalWeeksA: pool !== null ? pool - wB : undefined,
+      parentalWeeksB: pool !== null ? wB : undefined,
+      workFractionA: halfTimeA ? 0.5 : 0,
+    },
+    { children: nChildren, zaZyciem },
+  );
   const nameA = persona.a.name;
   const nameB = persona.b?.name ?? "Drugi rodzic";
+  const segA = plan.segments.filter((s) => s.parent === "A");
+  const segB = plan.segments.filter((s) => s.parent === "B");
+  const weeksOf = (segs: typeof segA, kind: string) => segs.filter((s) => s.kind === kind).reduce((n, s) => n + s.weeks, 0);
 
   return (
     <div>
@@ -66,29 +79,28 @@ export default function CalculatorPage() {
           <Panel>
             <h2 className="kr-card-title">Dzieci</h2>
             <div className="divide-y divide-kr-border">
-              <Row label="Liczba dzieci przy porodzie">
+              <Row label="Liczba dzieci przy jednym porodzie">
                 <Segmented value={children} onChange={setChildren} options={[{ v: "1", l: "Jedno" }, { v: "2+", l: "Dwoje lub więcej" }]} />
               </Row>
               <Row label="Zaświadczenie „Za życiem”" hint="Dłuższy urlop rodzicielski">
                 <Switch checked={zaZyciem} onCheckedChange={setZaZyciem} />
               </Row>
-              <Row label="Adopcja lub rodzina zastępcza" hint="Urlop na warunkach macierzyńskiego">
-                <Switch checked={adoption} onCheckedChange={setAdoption} />
-              </Row>
             </div>
           </Panel>
 
-          <Panel>
-            <h2 className="kr-card-title">Podział urlopu rodzicielskiego</h2>
-            <p className="kr-small text-kr-text-2">Pula {pool} tyg., po {min} tyg. nieprzenoszalnych dla każdego rodzica.</p>
-            <div className="py-6">
-              <Slider value={[partnerWeeks]} min={min} max={pool - min} step={1} onValueChange={(v) => setPartnerWeeks(v[0])} aria-label={`Tygodnie: ${nameB}`} />
-              <div className="mt-3 flex justify-between kr-small font-semibold">
-                <span className="text-kr-primary-dark">{nameA}: {pool - partnerWeeks} tyg.</span>
-                <span className="text-kr-partner">{nameB}: {partnerWeeks} tyg.</span>
+          {persona.b && pool !== null && (
+            <Panel>
+              <h2 className="kr-card-title">Podział urlopu rodzicielskiego</h2>
+              <p className="kr-small text-kr-text-2">Pula {pool} tyg., po {nt} tyg. nieprzenoszalnych dla każdego rodzica.</p>
+              <div className="py-6">
+                <Slider value={[wB]} min={nt} max={max} step={1} onValueChange={(v) => setPartnerWeeks(v[0])} aria-label={`Tygodnie: ${nameB}`} />
+                <div className="mt-3 flex justify-between kr-small font-semibold">
+                  <span className="text-kr-primary-dark">{nameA}: {pool - wB} tyg.</span>
+                  <span className="text-kr-partner">{nameB}: {wB} tyg.</span>
+                </div>
               </div>
-            </div>
-          </Panel>
+            </Panel>
+          )}
 
           <Panel>
             <h2 className="kr-card-title">Wariant i praca</h2>
@@ -96,31 +108,56 @@ export default function CalculatorPage() {
               <Row label="Wariant wypłaty" hint="81,5% wymaga wniosku do 21 dni po porodzie">
                 <Segmented value={variant} onChange={setVariant} options={[{ v: "81.5", l: "81,5% cały okres" }, { v: "100-70", l: "100% + 70%" }]} />
               </Row>
-              <Row label="Praca na ½ etatu w czasie rodzicielskiego" hint="Urlop wydłuża się proporcjonalnie">
-                <Switch checked={halfTime} onCheckedChange={setHalfTime} />
+              <Row label={`${nameA}: praca na ½ etatu w czasie rodzicielskiego`} hint="Urlop wydłuża się proporcjonalnie">
+                <Switch checked={halfTimeA} onCheckedChange={setHalfTimeA} />
               </Row>
             </div>
           </Panel>
+
+          <Panel>
+            <h2 className="kr-card-title mb-4">Oś czasu scenariusza</h2>
+            <Timeline
+              segments={plan.segments.map((s) => ({ parent: s.parent, kind: s.kind, startWeek: s.startWeek, weeks: s.weeks, percent: s.ratePercent }))}
+              nameA={nameA}
+              nameB={persona.b?.name}
+            />
+          </Panel>
         </div>
 
-        <aside className="lg:sticky lg:top-10 lg:self-start">
+        <aside className="space-y-4 lg:sticky lg:top-10 lg:self-start">
           <Panel className="border-kr-primary/30">
             <p className="kr-caption text-kr-text-2">Wynik scenariusza</p>
-            <div className="mt-3 space-y-3">
+            <div className="mt-3 space-y-4">
               <div>
-                <p className="kr-small text-kr-text-2">{nameA} · rodzicielski</p>
-                <p className="font-heading text-2xl font-extrabold text-kr-primary-dark tabular">{pool - partnerWeeks} tyg.</p>
+                <p className="kr-small text-kr-text-2">{nameA}</p>
+                <p className="font-heading text-2xl font-extrabold text-kr-primary-dark tabular">
+                  {plan.monthly.A !== null ? formatPLN(plan.monthly.A) : "—"}
+                  <span className="ml-1 kr-small font-medium text-kr-text-2">/ mies.</span>
+                </p>
+                <p className="kr-small text-kr-text-2">
+                  macierzyński {weeksOf(segA, "macierzynski") || weeksOf(segA, "warunki_macierzynskiego")} tyg. · rodzicielski {weeksOf(segA, "rodzicielski")} tyg.
+                </p>
               </div>
-              <div>
-                <p className="kr-small text-kr-text-2">{nameB} · rodzicielski</p>
-                <p className="font-heading text-2xl font-extrabold text-kr-partner tabular">{partnerWeeks} tyg.</p>
-              </div>
-              <p className="rounded-xl bg-muted px-3 py-2 kr-small text-kr-text-2">
-                Kwoty dla tego scenariusza policzy silnik reguł (krok 3).
-                {zaZyciem && " „Za życiem”: długość puli do potwierdzenia z ZUS."}
-              </p>
+              {persona.b && (
+                <div>
+                  <p className="kr-small text-kr-text-2">{nameB}</p>
+                  <p className="font-heading text-2xl font-extrabold text-kr-partner tabular">
+                    {plan.monthly.B !== null ? formatPLN(plan.monthly.B) : "—"}
+                    <span className="ml-1 kr-small font-medium text-kr-text-2">/ mies.</span>
+                  </p>
+                  <p className="kr-small text-kr-text-2">
+                    ojcowski {Math.round(weeksOf(segB, "ojcowski") * 7)} dni · rodzicielski {weeksOf(segB, "rodzicielski")} tyg.
+                  </p>
+                </div>
+              )}
             </div>
           </Panel>
+          {plan.errors.map((e) => <ToneBox key={e} tone="danger" title={e} />)}
+          {plan.todos.length > 0 && (
+            <ToneBox tone="info" title="Czego jeszcze nie liczymy">
+              <ul className="list-disc pl-4">{plan.todos.map((t) => <li key={t}>{t}</li>)}</ul>
+            </ToneBox>
+          )}
         </aside>
       </div>
     </div>

@@ -32,6 +32,7 @@ export const SEGMENT_LABEL: Record<string, string> = {
   warunki_macierzynskiego: "Urlop na warunkach macierzyńskiego",
   rodzicielski: "Urlop rodzicielski",
   ojcowski: "Urlop ojcowski",
+  uzupelniajacy: "Urlop uzupełniający",
   praca: "Praca",
 };
 
@@ -41,3 +42,7 @@ export const TITLE_LABEL: Record<string, string> = {
   jdg: "Działalność gospodarcza",
   brak: "Brak tytułu",
 };
+
+const MONTHS_SHORT = ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];
+/** "2027-03" → "mar" (deterministic, no Intl — avoids hydration mismatch). */
+export const monthShort = (yyyyMm: string) => MONTHS_SHORT[Number(yyyyMm.slice(5, 7)) - 1];
