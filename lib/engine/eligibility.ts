@@ -9,7 +9,7 @@
  *   przedłuża się do dnia porodu (Kodeks pracy).
  */
 import type { Params } from "./params";
-import { addDays, addMonths, diffDays } from "./dates";
+import { addDays, addMonths, dateText, diffDays } from "./dates";
 import { plnText } from "./money";
 import type { EligibilityResult, InsurancePeriod, PlanInputParsed, TraceStep } from "./types";
 
@@ -44,7 +44,7 @@ export function applyContractExtension(
       trace?.push({
         id: "kp-extension",
         label: "Przedłużenie umowy do dnia porodu",
-        detail: `Umowa na czas określony kończy się ${p.to}, czyli po 3. miesiącu ciąży (szacunkowo po ${threshold}) — przedłuża się do dnia porodu.`,
+        detail: `Umowa na czas określony kończy się ${dateText(p.to)}, czyli po 3. miesiącu ciąży (szacunkowo po ${dateText(threshold)}) — przedłuża się do dnia porodu.`,
         rule: "Kodeks pracy — ochrona w ciąży (opis wyzwania ZUS)",
         values: { umowaDo: p.to, przedluzonaDo: dueDate },
       });
@@ -124,8 +124,8 @@ export function checkEligibility(
     id: `insurance-${parent}`,
     label: "Ubezpieczenie chorobowe",
     detail: insured
-      ? `W dniu ${date} jest ubezpieczenie chorobowe; nieprzerwanie od ${days} dni (dla zasiłku chorobowego wymagane ${waiting}).`
-      : `W dniu ${date} brak ubezpieczenia chorobowego.`,
+      ? `W dniu ${dateText(date)} jest ubezpieczenie chorobowe; nieprzerwanie od ${days} dni (dla zasiłku chorobowego wymagane ${waiting}).`
+      : `W dniu ${dateText(date)} brak ubezpieczenia chorobowego.`,
     rule: insured ? `params.eligibility.waitingDays${waiting === params.eligibility.waitingDaysVoluntary ? "Voluntary" : "Mandatory"}` : "Ubezpieczenie w dniu porodu",
     values: { ubezpieczony: insured, dni: days, wymagane: waiting },
   });

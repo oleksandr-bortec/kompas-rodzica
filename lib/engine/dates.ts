@@ -48,3 +48,9 @@ export function maxDate(a: string, b: string) {
 export function endOfYear(iso: string): string {
   return `${iso.slice(0, 4)}-12-31`;
 }
+
+/** Polish date for engine texts: "2027-07-19" → "19.07.2027" (deterministic). */
+export function dateText(iso: string): string {
+  const [y, m, d] = iso.split("-");
+  return `${d}.${m}.${y}`;
+}
