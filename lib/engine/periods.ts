@@ -12,14 +12,39 @@
 import type { Params } from "./params";
 import { addDays, addMonths, addWeeks, addYears, diffDays, endOfYear, maxDate, minDate } from "./dates";
 
+type ByChildren = Params["maternity"]["weeksByChildren"];
+const childrenKey = (children: number) => String(Math.min(Math.max(children, 1), 5)) as keyof ByChildren;
+
+/** Maternity leave: 20 / 31 / 33 / 35 / 37 weeks for 1 / 2 / 3 / 4 / 5+ children (Załącznik ZUS). */
 export function maternityWeeks(children: number, params: Params): number | null {
-  const key = String(Math.min(Math.max(children, 1), 5)) as keyof Params["maternity"]["weeksByChildren"];
-  return params.maternity.weeksByChildren[key] ?? null;
+  return params.maternity.weeksByChildren[childrenKey(children)] ?? null;
 }
 
+/**
+ * Leave on maternity terms (adoption / foster): same lengths as maternity, by number
+ * of children taken at once; never shorter than params.adoption.minWeeks (9).
+ */
+export function adoptionLeaveWeeks(children: number, params: Params): number | null {
+  const w = params.adoption.weeksByChildren[childrenKey(children)];
+  return w == null ? null : Math.max(w, params.adoption.minWeeks);
+}
+
+/** Parental pool: 41 / 43 weeks; with „Za życiem” 65 / 67 weeks (Załącznik ZUS). */
 export function parentalPoolWeeks(children: number, zaZyciem: boolean | undefined, params: Params): number | null {
-  if (zaZyciem) return params.parental.poolWeeksZaZyciem ?? null;
-  return children > 1 ? params.parental.poolWeeksMultiple : params.parental.poolWeeks;
+  const p = params.parental;
+  if (zaZyciem) return (children > 1 ? p.poolWeeksZaZyciemMultiple : p.poolWeeksZaZyciem) ?? null;
+  return children > 1 ? p.poolWeeksMultiple : p.poolWeeks;
+}
+
+/**
+ * Supplementary maternity leave (premature / hospitalised child): 1 week per started
+ * week of hospitalisation, capped at 15 weeks (born before 28th week of pregnancy or
+ * birth weight ≤ 1000 g) or 8 weeks (other cases).
+ */
+export function supplementaryWeeks(hospitalDays: number, extremelyPreterm: boolean, params: Params): number {
+  if (hospitalDays <= 0) return 0;
+  const cap = extremelyPreterm ? params.supplementaryMaternity.maxWeeksExtremelyPreterm : params.supplementaryMaternity.maxWeeksOther;
+  return Math.min(Math.ceil(hospitalDays / 7), cap);
 }
 
 /** Validates a parental-leave split. Returns error messages (empty = OK). */

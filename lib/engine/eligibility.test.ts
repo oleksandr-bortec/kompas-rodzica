@@ -6,6 +6,8 @@ import {
   isInsuredOn,
   sicknessWaitingDays,
   endOfThirdMonthOfPregnancy,
+  debtBlocksBenefit,
+  debtThreshold,
 } from "./eligibility";
 import type { InsurancePeriod } from "./types";
 
@@ -47,10 +49,23 @@ describe("waiting period for sickness benefit (30 / 90 days)", () => {
     const periods = [uop("2026-01-01", "2026-01-15"), uop("2026-01-16", null)];
     expect(continuousInsuranceDays(periods, "2026-02-01")).toBe(31);
   });
-  it("a gap breaks continuity", () => {
+  it("a gap ≤ 30 days keeps earlier periods (gap days not counted) — art. 4 ust. 2", () => {
     const periods = [uop("2026-01-01", "2026-01-15"), uop("2026-01-20", null)];
-    expect(continuousInsuranceDays(periods, "2026-02-01")).toBe(12);
+    expect(continuousInsuranceDays(periods, "2026-02-01", 30)).toBe(15 + 12);
   });
+  it("a gap > 30 days breaks continuity", () => {
+    const periods = [uop("2025-10-01", "2025-11-30"), uop("2026-01-05", null)];
+    expect(continuousInsuranceDays(periods, "2026-02-01", 30)).toBe(27);
+  });
+});
+
+describe("contribution debt — art. 2a", () => {
+  const jdg: InsurancePeriod = { title: "jdg", from: "2025-01-01", to: null, sickness: "dobrowolne" };
+  it("threshold is 1% of the minimum wage", () => expect(debtThreshold(params)).toBe(48.06));
+  it("JDG with debt above threshold → blocked", () => expect(debtBlocksBenefit([jdg], "2027-01-20", 48.07, params)).toBe(true));
+  it("JDG with debt at threshold → not blocked", () => expect(debtBlocksBenefit([jdg], "2027-01-20", 48.06, params)).toBe(false));
+  it("employee debt does not block (rule applies to businesses)", () =>
+    expect(debtBlocksBenefit([uop("2020-01-01", null)], "2027-01-20", 1000, params)).toBe(false));
 });
 
 describe("Labour Code: fixed-term contract extended to birth", () => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getParams } from "./params";
 import {
+  adoptionLeaveWeeks,
   defaultParentalSplit,
   extendForPartTimeWork,
   leaveEnd,
@@ -9,6 +10,7 @@ import {
   parentalPoolWeeks,
   paternityDeadline,
   stillbirthLeaveEnd,
+  supplementaryWeeks,
   validateParentalSplit,
   validatePaternityParts,
 } from "./periods";
@@ -17,7 +19,14 @@ const params = getParams("2026-06-01");
 
 describe("maternity leave", () => {
   it("20 weeks for one child", () => expect(maternityWeeks(1, params)).toBe(20));
-  it("unknown for twins (missing in ZUS brief) → null, not a guess", () => expect(maternityWeeks(2, params)).toBeNull());
+  it("31 / 33 / 35 / 37 weeks for 2 / 3 / 4 / 5+ children (Załącznik ZUS)", () => {
+    expect([2, 3, 4, 5, 7].map((n) => maternityWeeks(n, params))).toEqual([31, 33, 35, 37, 37]);
+  });
+  it("adoption: same lengths, never below 9 weeks", () => {
+    expect(adoptionLeaveWeeks(1, params)).toBe(20);
+    expect(adoptionLeaveWeeks(2, params)).toBe(31);
+    expect(adoptionLeaveWeeks(1, { ...params, adoption: { ...params.adoption, weeksByChildren: { ...params.adoption.weeksByChildren, "1": 5 } } })).toBe(9);
+  });
   it("20 weeks from birth ends the day before week 21", () => expect(leaveEnd("2027-03-15", 20)).toBe("2027-08-01"));
 });
 
@@ -26,7 +35,10 @@ describe("parental leave", () => {
     expect(parentalPoolWeeks(1, false, params)).toBe(41);
     expect(parentalPoolWeeks(2, false, params)).toBe(43);
   });
-  it("'Za życiem' pool is missing in the brief → null", () => expect(parentalPoolWeeks(1, true, params)).toBeNull());
+  it("'Za życiem' pool: 65 weeks (1 child), 67 (more)", () => {
+    expect(parentalPoolWeeks(1, true, params)).toBe(65);
+    expect(parentalPoolWeeks(2, true, params)).toBe(67);
+  });
   it("default split keeps 9 weeks for the second parent", () => {
     expect(defaultParentalSplit(41, true, params)).toEqual({ a: 32, b: 9 });
     expect(defaultParentalSplit(41, false, params)).toEqual({ a: 32, b: 0 });
@@ -40,6 +52,13 @@ describe("parental leave", () => {
   it("half-time work doubles the leave length", () => expect(extendForPartTimeWork(32, 0.5, params)).toBe(64));
   it("work above ½ etatu is not allowed", () => expect(extendForPartTimeWork(32, 0.75, params)).toBeNull());
   it("usable until 31.12 of the year the child turns 6", () => expect(parentalDeadline("2027-03-15", params)).toBe("2033-12-31"));
+});
+
+describe("supplementary maternity leave", () => {
+  it("1 week per started week in hospital", () => expect(supplementaryWeeks(10, false, params)).toBe(2));
+  it("capped at 8 weeks (other cases)", () => expect(supplementaryWeeks(90, false, params)).toBe(8));
+  it("capped at 15 weeks (< 28th week or ≤ 1000 g)", () => expect(supplementaryWeeks(140, true, params)).toBe(15));
+  it("no hospitalisation → 0", () => expect(supplementaryWeeks(0, true, params)).toBe(0));
 });
 
 describe("paternity leave", () => {

@@ -37,9 +37,13 @@ describe("Kasia — JDG, voluntary sickness insurance, contribution debt", () =>
     expect(plan.eligibility.A.sicknessBenefitEligible).toBe(true);
   });
   it("ZUS pays", () => expect(plan.payer.A).toBe("ZUS"));
-  it("flags the debt as a risk and a TODO (rule missing in brief)", () => {
-    expect(plan.risks.map((r) => r.id)).toContain("contribution-debt");
-    expect(plan.todos.join(" ")).toMatch(/zaległości/i);
+  it("art. 2a: debt 412.50 zł > 1% of minimum wage (48.06 zł) blocks the benefit until paid", () => {
+    expect(plan.eligibility.A.eligible).toBe(false);
+    expect(plan.eligibility.A.reason).toMatch(/48,06/);
+    expect(plan.risks.find((r) => r.id === "contribution-debt")?.severity).toBe("danger");
+  });
+  it("deadline to pay the debt: 6 months from the birth", () => {
+    expect(plan.deadlines.find((d) => d.id === "debt")?.date).toBe("2027-07-19");
   });
 });
 
@@ -59,9 +63,10 @@ describe("Ewa + Marek — adoption of a 3-year-old", () => {
     expect(plan.payer.A).toBe("ZUS");
     expect(plan.payer.B).toBe("platnik");
   });
-  it("adoption leave length is a TODO, not a guess", () => {
-    expect(plan.segments.some((s) => s.kind === "warunki_macierzynskiego")).toBe(false);
-    expect(plan.todos.join(" ")).toMatch(/adopcji/);
+  it("20 weeks of leave on maternity terms (1 child), then parental", () => {
+    const kinds = plan.segments.filter((s) => s.parent === "A").map((s) => `${s.kind}:${s.weeks}`);
+    expect(kinds).toEqual(["warunki_macierzynskiego:20", "rodzicielski:32"]);
+    expect(plan.todos).toEqual([]);
   });
   it("paternity deadline: 12 months from the decision", () => {
     expect(plan.deadlines.find((d) => d.id === "paternity")?.date).toBe("2027-11-30");

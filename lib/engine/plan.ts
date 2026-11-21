@@ -4,19 +4,21 @@
  * recording every decision in `trace` (used by „Dlaczego tyle?" and the AI explainer).
  */
 import { getParams, type Params } from "./params";
-import { addDays, diffDays } from "./dates";
-import { checkEligibility, applyContractExtension, periodOn } from "./eligibility";
+import { addDays, addMonths, diffDays } from "./dates";
+import { checkEligibility, applyContractExtension, debtBlocksBenefit, debtThreshold, periodOn } from "./eligibility";
 import { determinePayer } from "./payer";
 import {
   defaultParentalSplit,
   extendForPartTimeWork,
   leaveEnd,
+  adoptionLeaveWeeks,
   maternityWeeks,
   parentalDeadline,
   parentalPoolWeeks,
   paternityDeadline,
   validateParentalSplit,
 } from "./periods";
+import { plnText } from "./money";
 import { combinedRateDeadline, monthlyBenefit, ratePercent, resolveVariant } from "./amounts";
 import {
   PlanInputSchema,
@@ -28,6 +30,8 @@ import {
   type SegmentKind,
   type TraceStep,
 } from "./types";
+
+const SEVERITY_ORDER = { danger: 0, warning: 1, info: 2 } as const;
 
 export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
   const input = PlanInputSchema.parse(rawInput);
@@ -101,7 +105,7 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
         errors.push(`Przed porodem można wykorzystać najwyżej ${params.maternity.maxWeeksBeforeBirth} tyg. urlopu macierzyńskiego.`);
       }
       if (weeks === null) {
-        todos.push(`Długość urlopu macierzyńskiego dla ${input.children} dzieci — brak w materiałach ZUS (params.maternity.weeksByChildren).`);
+        todos.push(`Długość urlopu macierzyńskiego dla ${input.children} dzieci — brak w parametrach (params.maternity.weeksByChildren).`);
       } else {
         const before = Math.min(o.weeksBeforeBirth, params.maternity.maxWeeksBeforeBirth);
         const seg = addSegment("A", "macierzynski", addDays(input.eventDate, -before * 7), weeks);
@@ -115,9 +119,9 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
         });
       }
     } else {
-      const weeks = params.adoption.weeks;
+      const weeks = adoptionLeaveWeeks(input.children, params);
       if (weeks === null) {
-        todos.push("Długość urlopu na warunkach urlopu macierzyńskiego przy adopcji / rodzinie zastępczej — brak w materiałach ZUS (params.adoption.weeks).");
+        todos.push("Długość urlopu na warunkach urlopu macierzyńskiego — brak w parametrach (params.adoption.weeksByChildren).");
       } else {
         const seg = addSegment("A", "warunki_macierzynskiego", input.eventDate, weeks);
         afterFirstLeave = addDays(seg.end, 1);
@@ -125,7 +129,7 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
           id: "adoption-leave",
           label: "Urlop na warunkach urlopu macierzyńskiego",
           detail: `${weeks} tyg., ${seg.start} – ${seg.end}.`,
-          rule: "params.adoption",
+          rule: "params.adoption.weeksByChildren",
           values: { tygodnie: weeks, procent: seg.ratePercent },
         });
       }
@@ -158,7 +162,7 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
   const pool = parentalPoolWeeks(input.children, input.zaZyciem, params);
   let afterParentalA = afterFirstLeave;
   if (pool === null) {
-    todos.push("Długość urlopu rodzicielskiego z zaświadczeniem „Za życiem” — brak w materiałach ZUS (params.parental.poolWeeksZaZyciem).");
+    todos.push("Długość urlopu rodzicielskiego — brak w parametrach (params.parental).");
   } else if (eligA.eligible || bInsured) {
     const hasB = !!input.parentB && bInsured;
     const def = defaultParentalSplit(pool, hasB, params);
@@ -170,7 +174,9 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
       id: "parental-split",
       label: "Podział urlopu rodzicielskiego",
       detail: `Pula ${pool} tyg., po ${params.parental.nonTransferableWeeksPerParent} tyg. nieprzenoszalnych dla każdego rodzica. Plan: ${wA} + ${wB} tyg.`,
-      rule: input.children > 1 ? "params.parental.poolWeeksMultiple" : "params.parental.poolWeeks",
+      rule: input.zaZyciem
+        ? input.children > 1 ? "params.parental.poolWeeksZaZyciemMultiple" : "params.parental.poolWeeksZaZyciem"
+        : input.children > 1 ? "params.parental.poolWeeksMultiple" : "params.parental.poolWeeks",
       values: { pula: pool, A: wA, B: wB },
     });
 
@@ -256,16 +262,25 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
     });
   }
   if ((input.parentA.contributionDebt ?? 0) > 0) {
+    const blocking = debtBlocksBenefit(periodsA, input.eventDate, input.parentA.contributionDebt, params);
+    const lastDay = addDays(addMonths(input.eventDate, params.debt.prescriptionMonths), -1);
     risks.push({
       id: "contribution-debt",
-      severity: "warning",
-      title: "Zaległość w składkach",
-      why: "Zaległość na dzień powstania prawa może wpłynąć na wypłatę zasiłku.",
-      todo: "Ureguluj zaległość i pobierz zaświadczenie o niezaleganiu.",
-      rule: "TODO(ZUS): reguła zaległości — brak szczegółów w materiałach",
+      severity: blocking ? "danger" : "info",
+      title: `Zadłużenie w składkach: ${plnText(input.parentA.contributionDebt ?? 0)}`,
+      why: blocking
+        ? `Przy działalności gospodarczej zadłużenie powyżej ${plnText(debtThreshold(params))} (1% minimalnego wynagrodzenia) w dniu powstania prawa wstrzymuje zasiłek do spłaty całości.`
+        : `Zadłużenie nie przekracza ${plnText(debtThreshold(params))} (1% minimalnego wynagrodzenia) albo nie dotyczy Twojego tytułu ubezpieczenia.`,
+      todo: blocking
+        ? `Spłać całe zadłużenie najpóźniej do ${lastDay} — po 6 miesiącach prawo do zasiłku przedawnia się.`
+        : "Mimo to warto uregulować zaległość przed porodem.",
+      rule: "art. 2a ustawy zasiłkowej · params.debt",
       parent: "A",
     });
-    todos.push("Wpływ zaległości w składkach na prawo do zasiłku — reguła do potwierdzenia z ZUS.");
+    if (blocking) {
+      deadlines.push({ id: "debt", label: "Spłata zadłużenia — inaczej prawo się przedawni", date: lastDay, parent: "A", rule: "art. 2a ust. 2 · params.debt.prescriptionMonths" });
+      deadlines.sort((a, b) => a.date.localeCompare(b.date));
+    }
   }
   if (input.parentA.baseIncreasedInPregnancy) {
     risks.push({
@@ -322,7 +337,7 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
     segments,
     monthly: { A: first("A"), B: first("B") },
     deadlines,
-    risks,
+    risks: risks.sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]),
     todos: [...new Set(todos)],
     errors: [...new Set(errors)],
     trace,
