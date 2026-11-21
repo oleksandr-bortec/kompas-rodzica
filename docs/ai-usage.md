@@ -22,3 +22,4 @@ AI **nie liczy** kwot, okresów ani terminów i nie wydaje decyzji.
 | 2026-11-21 | Claude Code | Silnik: lista dokumentów (co, dokąd, do kiedy) wg Kodeksu pracy i ustawy; ekran Dokumenty i „Następny krok” z silnika; daty po polsku |
 | 2026-11-21 | Claude Code | „Sprawdź sprawę”: odczyt akt (PDF/skan) przez Claude (claude-opus-5-5, structured outputs + Zod), potwierdzenie przez człowieka, werdykt z silnika, porównanie z decyzją ZUS; plan B na przykładowych sprawach |
 | 2026-11-21 | Claude Code | docs/wymagania.md, prezentacja.md, scenariusz-wideo.md; strona „W ciąży” (wymaganie a); adopcja w kalkulatorze; kwota przy pracy na ½ etatu (art. 31 ust. 4a); wynagrodzenia z 12 mies. w formularzu ręcznym; ikony PWA; poprawki dostępności |
+| 2026-11-21 | Claude Code | Polerowanie: nowy ekran powitalny (podgląd planu z silnika, „Jak to działa”), strona 404 po polsku, tytuły kart, oś czasu 81,5%, krótszy chip płatnika, „Następny krok” z imieniem, bez migania persony |

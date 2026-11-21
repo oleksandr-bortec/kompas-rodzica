@@ -27,7 +27,7 @@ export default function LoginPage() {
   const [agreed, setAgreed] = useState(false);
 
   return (
-    <FlowShell right={<SymulacjaBadge />}>
+    <FlowShell title="Logowanie" right={<SymulacjaBadge />}>
       {step === "login" ? (
         <>
           <h1 className="kr-h1">Zaloguj przez mObywatel</h1>

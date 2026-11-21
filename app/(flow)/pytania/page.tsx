@@ -85,7 +85,7 @@ export default function QuestionsPage() {
   const last = i === questions.length - 1;
 
   return (
-    <FlowShell right={<span className="kr-small text-kr-text-2">{i + 1} / {questions.length}</span>}>
+    <FlowShell title="Kilka pytań" right={<span className="kr-small text-kr-text-2">{i + 1} / {questions.length}</span>}>
       <Progress value={((i + 1) / questions.length) * 100} className="mb-8 h-1.5" />
       <h1 className="kr-h1">{q.title}</h1>
       <p className="mt-2 mb-6 text-kr-text-2">{q.hint}</p>

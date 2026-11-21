@@ -92,7 +92,7 @@ export default function CheckCasePage() {
   }, [step, data]);
 
   return (
-    <FlowShell right={<span className="kr-small text-kr-text-2">Dla jury i rodziców</span>}>
+    <FlowShell title="Sprawdź sprawę" right={<span className="kr-small text-kr-text-2">Dla jury i rodziców</span>}>
       <h1 className="kr-h1">Sprawdź sprawę</h1>
 
       {step === "pick" && (

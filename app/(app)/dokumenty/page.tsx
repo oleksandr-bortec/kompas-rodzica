@@ -57,8 +57,8 @@ function DocumentRow({ d, storageKey, parentName }: { d: DocumentItem; storageKe
         </p>
         <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 kr-small text-kr-text-2">
           <span className="inline-flex items-center gap-1"><Icon className="size-4" aria-hidden /> {d.where}</span>
-          <span>· {d.deadline ? <>do <b className="font-semibold text-kr-text">{formatDate(d.deadline)}</b> ({d.deadlineText})</> : d.deadlineText}</span>
-          {parentName && <span>· {parentName}</span>}
+          <span>{d.deadline ? <>do <b className="font-semibold text-kr-text">{formatDate(d.deadline)}</b> · {d.deadlineText}</> : d.deadlineText}</span>
+          {parentName && <span className="rounded-full bg-muted px-2 py-0.5 kr-caption text-kr-text">{parentName}</span>}
         </p>
         <p className="mt-1 inline-flex items-center gap-1 kr-caption font-normal text-kr-text-2">
           <BookOpen className="size-3.5" aria-hidden /> {d.rule}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, ArrowLeft, CheckCircle2, Info, MonitorSmartphone, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DocTitle } from "./doc-title";
 import type { Source, Tone } from "@/lib/personas/types";
 
 /** Card surface used across the app. */
@@ -25,14 +26,18 @@ export function PageHeader({
   subtitle,
   back,
   action,
+  docTitle,
 }: {
   title: string;
   subtitle?: string;
   back?: string;
   action?: React.ReactNode;
+  /** Browser tab title (defaults to `title`). React 19 hoists <title> into <head>. */
+  docTitle?: string;
 }) {
   return (
     <header className="mb-6 flex items-start justify-between gap-4">
+      <DocTitle title={docTitle ?? title} />
       <div>
         {back && (
           <Link href={back} className="mb-3 inline-flex items-center gap-1 kr-small font-medium text-kr-text-2 hover:text-kr-text">

@@ -91,10 +91,10 @@ function ParentCards({ d }: { d: ParentData }) {
 export default function ZusDataPage() {
   const { persona } = usePersona();
   if (persona.id === "custom") return (
-    <FlowShell><Button asChild><Link href="/dane-reczne">Edytuj wpisane dane</Link></Button></FlowShell>
+    <FlowShell title="Twoje dane z ZUS"><Button asChild><Link href="/dane-reczne">Edytuj wpisane dane</Link></Button></FlowShell>
   );
   return (
-    <FlowShell right={<SymulacjaBadge />}>
+    <FlowShell title="Twoje dane z ZUS" right={<SymulacjaBadge />}>
       <h1 className="kr-h1">Twoje dane z ZUS</h1>
       <p className="mt-2 mb-6 text-kr-text-2">Sprawdź, czy wszystko się zgadza. Każde pole ma oznaczone źródło.</p>
       <div className="space-y-8">
