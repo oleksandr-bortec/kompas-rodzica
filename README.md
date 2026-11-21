@@ -10,6 +10,12 @@ jak podzielić urlopy, jakie dokumenty złożyć i gdzie — oraz na co uważać
 > deterministyczny silnik w `lib/engine/` (testy Vitest). AI tylko czyta dokumenty i wyjaśnia wynik.
 > To informacja, a nie decyzja ZUS.
 
+## Demo
+
+Wersja demonstracyjna jest publikowana automatycznie na Vercel z gałęzi `main`
+(każdy PR dostaje własny podgląd). Dane osób w demo są fikcyjne, a imitacje systemów
+(mObywatel, ZUS, e-ZLA, PUE/eZUS) mają oznaczenie „Symulacja”.
+
 ## Uruchomienie lokalnie
 
 ```bash
