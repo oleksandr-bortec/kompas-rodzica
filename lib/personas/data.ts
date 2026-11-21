@@ -1,10 +1,10 @@
-import type { Persona } from "./types";
+import type { DemoPersona } from "./types";
 
 /**
  * FAKE demo personas (imitacja danych ZUS). Amounts in `demoPlan` are
  * placeholders for the UI skeleton — the real numbers will come from lib/engine.
  */
-export const PERSONAS: Persona[] = [
+export const PERSONAS: DemoPersona[] = [
   {
     id: "ania",
     label: "Ania i Tomek",
@@ -292,8 +292,8 @@ export const PERSONAS: Persona[] = [
   },
 ];
 
-export const DEFAULT_PERSONA_ID: Persona["id"] = "ania";
+export const DEFAULT_PERSONA_ID: DemoPersona["id"] = "ania";
 
-export function getPersona(id: string | null | undefined): Persona {
+export function getPersona(id: string | null | undefined): DemoPersona {
   return PERSONAS.find((p) => p.id === id) ?? PERSONAS[0];
 }

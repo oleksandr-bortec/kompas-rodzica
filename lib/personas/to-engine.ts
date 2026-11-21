@@ -19,6 +19,7 @@ function toParent(d: ParentData): ParentInput {
 
 /** Maps a demo persona to engine input. */
 export function personaToInput(p: Persona, options?: Partial<PlanOptions>): PlanInput {
+  if (p.id === "custom") return { ...p.input, options: { ...p.input.options, ...options } };
   return {
     event: p.event,
     eventDate: p.eventDate,

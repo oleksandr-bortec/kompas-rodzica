@@ -66,6 +66,7 @@ function DocumentRow({ d, storageKey, parentName }: { d: DocItem; storageKey: st
 /** Ekran 9 — Dokumenty i wnioski. */
 export default function DocumentsPage() {
   const { persona } = usePersona();
+  if (!persona.demoPlan) return <PageHeader title="Dokumenty i wnioski" subtitle="Lista dokumentów dla profilu własnego jest w przygotowaniu." />;
   const docs = persona.demoPlan.documents;
   const name = (who: "A" | "B") => (who === "A" ? persona.a.name : persona.b?.name ?? "");
 

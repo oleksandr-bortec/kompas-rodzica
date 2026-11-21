@@ -26,8 +26,8 @@ export default function ProfilePage() {
           <Panel>
             <h2 className="kr-card-title">Twoje dane</h2>
             <div className="divide-y divide-kr-border">
-              <Field label="Imię" value={`${persona.a.name}, ${persona.a.age} l.`} source="zus" />
-              <Field label="Tytuł ubezpieczenia" value={TITLE_LABEL[persona.a.periods[0].title]} source="zus" />
+              <Field label="Imię" value={persona.a.age === undefined ? persona.a.name : `${persona.a.name}, ${persona.a.age} l.`} source={persona.id === "custom" ? "user" : "zus"} />
+              <Field label="Tytuł ubezpieczenia" value={TITLE_LABEL[persona.a.periods[0].title]} source={persona.id === "custom" ? "user" : "zus"} />
               <Field label={persona.event === "adopcja" ? "Przyjęcie dziecka" : "Termin porodu"} value={formatDate(persona.eventDate)} source="user" />
             </div>
           </Panel>
@@ -35,8 +35,8 @@ export default function ProfilePage() {
             <h2 className="kr-card-title">Drugi rodzic</h2>
             {persona.b ? (
               <div className="divide-y divide-kr-border">
-                <Field label="Imię" value={`${persona.b.name}, ${persona.b.age} l.`} source="zus" />
-                <Field label="Tytuł ubezpieczenia" value={TITLE_LABEL[persona.b.periods[0].title]} source="zus" />
+                <Field label="Imię" value={persona.b.age === undefined ? persona.b.name : `${persona.b.name}, ${persona.b.age} l.`} source={persona.id === "custom" ? "user" : "zus"} />
+                <Field label="Tytuł ubezpieczenia" value={TITLE_LABEL[persona.b.periods[0].title]} source={persona.id === "custom" ? "user" : "zus"} />
               </div>
             ) : (
               <p className="mt-1 kr-small text-kr-text-2">Nie dodano drugiego rodzica.</p>

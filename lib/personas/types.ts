@@ -3,10 +3,12 @@
  * `demoPlan` is a placeholder until lib/engine computes the real plan (step 3).
  */
 
+import type { PlanInputParsed } from "@/lib/engine/types";
+
 export type Source = "zus" | "user" | "ai";
 export type Tone = "success" | "warning" | "danger" | "info";
 
-export type InsuranceTitle = "umowa_o_prace" | "umowa_zlecenie" | "jdg" | "brak";
+export type InsuranceTitle = "umowa_o_prace" | "umowa_zlecenie" | "jdg" | "brak" | "inne";
 
 export interface InsurancePeriod {
   title: InsuranceTitle;
@@ -28,12 +30,12 @@ export interface Ezla {
 
 export interface ParentData {
   name: string;
-  age: number;
+  age?: number;
   periods: InsurancePeriod[];
   /** średni przychód z 12 mies. — dane przykładowe (wzór podstawy: TODO ZUS) */
-  avgMonthlyBase: number;
+  avgMonthlyBase: number | null;
   ezla: Ezla[];
-  contributionDebt: number; // zł, 0 = brak
+  contributionDebt?: number; // zł, 0 = brak
 }
 
 export type SegmentKind =
@@ -84,7 +86,7 @@ export interface DemoPlan {
   documents: DocItem[];
 }
 
-export interface Persona {
+export interface DemoPersona {
   id: "ania" | "kasia" | "ola" | "ewa-marek";
   label: string;
   tagline: string;
@@ -96,3 +98,11 @@ export interface Persona {
   b?: ParentData;
   demoPlan: DemoPlan;
 }
+
+export interface CustomPersona extends Omit<DemoPersona, "id" | "demoPlan"> {
+  id: "custom";
+  input: PlanInputParsed;
+  demoPlan?: undefined;
+}
+
+export type Persona = DemoPersona | CustomPersona;
