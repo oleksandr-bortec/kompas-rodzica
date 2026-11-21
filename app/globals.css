@@ -1,0 +1,198 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Kompas Rodzica — design tokens („spokojny fintech").
+ * Palette from the concept doc (WCAG ≥ 4.5:1 for text pairs).
+ */
+:root {
+  /* brand */
+  --kr-primary: #0e7c66; /* Kompas Green: main buttons, active tab, parent 1 */
+  --kr-primary-dark: #0a5546; /* headings, text on tint, pressed */
+  --kr-primary-tint: #e3f2ee; /* selected cards, 70% periods */
+  --kr-partner: #5b5fc7; /* parent 2 in timeline/charts */
+  --kr-partner-tint: #ebebf9;
+  --kr-accent: #f08a5d; /* "next step" badge, warm accents (dark text only) */
+  --kr-bg: #faf8f5;
+  --kr-surface: #ffffff;
+  --kr-border: #e5e2dc;
+  --kr-text: #1d2624;
+  --kr-text-2: #5c6966;
+  /* status */
+  --kr-success: #177245;
+  --kr-warning: #9a6412;
+  --kr-danger: #c2412d;
+  --kr-info: #2f6fb3;
+  /* delicate mode */
+  --kr-delicate-bg: #f3f1f6;
+  --kr-delicate-btn: #5e6a85;
+
+  /* shadcn mapping */
+  --background: var(--kr-bg);
+  --foreground: var(--kr-text);
+  --card: var(--kr-surface);
+  --card-foreground: var(--kr-text);
+  --popover: var(--kr-surface);
+  --popover-foreground: var(--kr-text);
+  --primary: var(--kr-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--kr-primary-tint);
+  --secondary-foreground: var(--kr-primary-dark);
+  --muted: #f1eee9;
+  --muted-foreground: var(--kr-text-2);
+  --accent: var(--kr-primary-tint);
+  --accent-foreground: var(--kr-primary-dark);
+  --destructive: var(--kr-danger);
+  --border: var(--kr-border);
+  --input: var(--kr-border);
+  --ring: var(--kr-primary);
+  --chart-1: var(--kr-primary);
+  --chart-2: var(--kr-partner);
+  --chart-3: var(--kr-accent);
+  --chart-4: var(--kr-primary-dark);
+  --chart-5: var(--kr-text-2);
+  --radius: 0.875rem; /* 14px — cards 12–16px */
+  --sidebar: var(--kr-surface);
+  --sidebar-foreground: var(--kr-text);
+  --sidebar-primary: var(--kr-primary);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--kr-primary-tint);
+  --sidebar-accent-foreground: var(--kr-primary-dark);
+  --sidebar-border: var(--kr-border);
+  --sidebar-ring: var(--kr-primary);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-heading: var(--font-manrope);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Kompas tokens as Tailwind colors: bg-kr-primary, text-kr-text-2, … */
+  --color-kr-primary: var(--kr-primary);
+  --color-kr-primary-dark: var(--kr-primary-dark);
+  --color-kr-tint: var(--kr-primary-tint);
+  --color-kr-partner: var(--kr-partner);
+  --color-kr-partner-tint: var(--kr-partner-tint);
+  --color-kr-accent: var(--kr-accent);
+  --color-kr-bg: var(--kr-bg);
+  --color-kr-surface: var(--kr-surface);
+  --color-kr-border: var(--kr-border);
+  --color-kr-text: var(--kr-text);
+  --color-kr-text-2: var(--kr-text-2);
+  --color-kr-success: var(--kr-success);
+  --color-kr-warning: var(--kr-warning);
+  --color-kr-danger: var(--kr-danger);
+  --color-kr-info: var(--kr-info);
+  --color-kr-delicate-bg: var(--kr-delicate-bg);
+  --color-kr-delicate-btn: var(--kr-delicate-btn);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-size: 16px;
+    line-height: 24px;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-heading;
+  }
+  /* inputs ≥16px so iOS doesn't zoom */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+@layer utilities {
+  /* typography scale from the concept doc */
+  .kr-amount {
+    font-family: var(--font-manrope);
+    font-size: 32px;
+    line-height: 40px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .kr-h1 {
+    font-family: var(--font-manrope);
+    font-size: 24px;
+    line-height: 32px;
+    font-weight: 700;
+  }
+  .kr-h2 {
+    font-family: var(--font-manrope);
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 700;
+  }
+  .kr-card-title {
+    font-size: 17px;
+    line-height: 24px;
+    font-weight: 600;
+  }
+  .kr-small {
+    font-size: 14px;
+    line-height: 20px;
+  }
+  .kr-caption {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 600;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

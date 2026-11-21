@@ -1,0 +1,99 @@
+"use client";
+
+import { useState } from "react";
+import { Building2, ExternalLink, FileSignature, Landmark, ScrollText } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { usePersona } from "@/components/kr/persona-provider";
+import { SimAction } from "@/components/kr/sim-action";
+import { PageHeader, Panel, SymulacjaBadge } from "@/components/kr/ui";
+import { cn } from "@/lib/utils";
+
+const WHERE_ICON = { pracodawca: Building2, ZUS: Landmark, "USC / gov.pl": ScrollText } as const;
+
+/** Ekran 9 — Dokumenty i wnioski. */
+export default function DocumentsPage() {
+  const { persona } = usePersona();
+  const [done, setDone] = useState<Record<string, boolean>>({});
+  const docs = persona.demoPlan.documents;
+  const name = (who: "A" | "B") => (who === "A" ? persona.a.name : persona.b?.name ?? "");
+
+  return (
+    <div>
+      <PageHeader title="Dokumenty i wnioski" subtitle="Co, dokąd i do kiedy" />
+      <div className="grid gap-4 lg:grid-cols-[1fr_340px] lg:gap-6">
+        <Panel>
+          <h2 className="kr-card-title mb-2">Twoja lista</h2>
+          <ul className="divide-y divide-kr-border">
+            {docs.map((d) => {
+              const Icon = WHERE_ICON[d.where];
+              return (
+                <li key={d.id} className="flex gap-3 py-4">
+                  <Checkbox
+                    checked={!!done[d.id]}
+                    onCheckedChange={(v) => setDone({ ...done, [d.id]: v === true })}
+                    className="mt-1"
+                    aria-label={`Oznacz jako zrobione: ${d.what}`}
+                  />
+                  <div className="flex-1">
+                    <p className={cn("font-medium", done[d.id] && "text-kr-text-2 line-through")}>
+                      {d.what} {d.form && <span className="ml-1 rounded bg-muted px-1.5 py-0.5 kr-caption">{d.form}</span>}
+                    </p>
+                    <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 kr-small text-kr-text-2">
+                      <span className="inline-flex items-center gap-1"><Icon className="size-4" aria-hidden /> {d.where}</span>
+                      <span>· {d.deadline}</span>
+                      {persona.b && <span>· {name(d.who)}</span>}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </Panel>
+
+        <aside className="space-y-4">
+          <Panel>
+            <div className="flex items-center justify-between">
+              <h2 className="kr-card-title">Wypełnij wniosek</h2>
+              <SymulacjaBadge />
+            </div>
+            <p className="mt-1 kr-small text-kr-text-2">Dane uzupełnimy z Twojego planu. Od 24.10.2026 obowiązuje formularz ZAM.</p>
+            <div className="mt-4 grid gap-2">
+              <SimAction
+                label={<><FileSignature aria-hidden /> Wniosek ZAM do ZUS</>}
+                title="Wniosek ZAM"
+                description="Sprawdź podgląd i wyślij przez PUE/eZUS."
+                done="Wniosek ZAM trafił do ZUS. Potwierdzenie znajdziesz w PUE/eZUS."
+              >
+                <dl className="grid grid-cols-2 gap-2 rounded-xl bg-muted p-3 kr-small">
+                  <dt className="text-kr-text-2">Wnioskodawca</dt><dd>{persona.a.name}</dd>
+                  <dt className="text-kr-text-2">Świadczenie</dt><dd>Zasiłek macierzyński</dd>
+                  <dt className="text-kr-text-2">Wariant</dt><dd>{persona.demoPlan.variant}</dd>
+                </dl>
+              </SimAction>
+              <SimAction
+                variant="outline"
+                label={<><Building2 aria-hidden /> Wniosek o urlop do pracodawcy</>}
+                title="Wniosek o urlop macierzyński i rodzicielski"
+                description="Jeden wniosek na oba urlopy. Wyślemy go do działu kadr."
+                done="Wniosek trafił do pracodawcy."
+              />
+            </div>
+          </Panel>
+          <Panel>
+            <div className="flex items-center justify-between">
+              <h2 className="kr-card-title">Odpis aktu urodzenia</h2>
+              <SymulacjaBadge />
+            </div>
+            <p className="mt-1 kr-small text-kr-text-2">Pełny lub skrócony — wniosek online w gov.pl.</p>
+            <div className="mt-4 grid gap-2">
+              <SimAction variant="outline" label="Zamów odpis skrócony" title="Wniosek o odpis aktu urodzenia" description="Odpis skrócony, wysyłka elektroniczna." done="Wniosek złożony. Odpis otrzymasz w skrzynce gov.pl." />
+              <a href="https://www.gov.pl/web/gov/uzyskaj-odpis-aktu-urodzenia" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-1 kr-small font-medium text-kr-primary hover:underline">
+                Usługa na gov.pl <ExternalLink className="size-3.5" aria-hidden />
+              </a>
+            </div>
+          </Panel>
+        </aside>
+      </div>
+    </div>
+  );
+}

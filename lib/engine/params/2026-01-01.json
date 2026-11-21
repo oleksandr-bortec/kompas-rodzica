@@ -1,0 +1,65 @@
+{
+  "$comment": "Parametry silnika reguł. Źródło: opis wyzwania ZUS (PDF 2). Wartości oznaczone null — brak w materiałach, do uzupełnienia z załącznika ZUS (TODO).",
+  "version": "2026-01-01",
+  "effectiveFrom": "2026-01-01",
+  "eligibility": {
+    "waitingDaysMandatory": 30,
+    "waitingDaysVoluntary": 90
+  },
+  "payer": {
+    "employerPaysAboveInsured": 20,
+    "insuredCountDate": "11-30"
+  },
+  "sickness": {
+    "employerPaidDaysPerYear": 33,
+    "employerPaidDaysPerYearOver50": 14,
+    "pregnancyRatePercent": 100,
+    "maxDays": 270
+  },
+  "maternity": {
+    "weeksOneChild": 20,
+    "weeksByChildren": { "1": 20, "2": null, "3": null, "4": null, "5": null },
+    "maxWeeksBeforeBirth": 6,
+    "motherOnlyWeeksAfterBirth": 14,
+    "ratePercent": 100
+  },
+  "parental": {
+    "poolWeeks": 41,
+    "poolWeeksMultiple": 43,
+    "poolWeeksZaZyciem": null,
+    "nonTransferableWeeksPerParent": 9,
+    "maxParts": 5,
+    "untilChildAgeYearEnd": 6,
+    "ratePercent": 70,
+    "maxWorkFraction": 0.5
+  },
+  "paternity": {
+    "days": 14,
+    "minPartDays": 7,
+    "maxParts": 2,
+    "untilChildAgeMonths": 12,
+    "adoptionMonthsFromDecision": 12,
+    "adoptionMaxChildAgeYears": 14,
+    "ratePercent": 100
+  },
+  "supplementaryMaternity": {
+    "weeks": null,
+    "ratePercent": 100
+  },
+  "adoption": {
+    "fosterMaxChildAgeYears": 7,
+    "fosterMaxChildAgeYearsSchoolDeferred": 10,
+    "adoptionMaxChildAgeYears": 14,
+    "weeks": null,
+    "ratePercent": 100
+  },
+  "stillbirth": {
+    "weeksAfterBirth": 8,
+    "minDaysAfterDeath": 7,
+    "daysIfDeathAfter8Weeks": 7
+  },
+  "combinedRate": {
+    "ratePercent": 81.5,
+    "applicationDeadlineDays": 21
+  }
+}
