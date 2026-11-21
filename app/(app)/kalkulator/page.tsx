@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { usePersona } from "@/components/kr/persona-provider";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -44,12 +45,14 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
 
 /** Ekran 6 — Kalkulator (scenariusze b–f, j). Każda zmiana → buildPlan (silnik reguł). */
 export default function CalculatorPage() {
-  const params = getParams();
-  const [children, setChildren] = useState<"1" | "2+">("1");
+  const { persona: selected } = usePersona();
+  const params = getParams(selected.eventDate);
+  const [override, setChildren] = useState<"1" | "2+" | null>(null);
+  const children = override ?? (selected.children === 1 ? "1" : "2+");
   const [variant, setVariant] = useState<"81.5" | "100-70">("81.5");
   const [zaZyciem, setZaZyciem] = useState(false);
   const [halfTimeA, setHalfTimeA] = useState(false);
-  const nChildren = children === "1" ? 1 : 2;
+  const nChildren = override === null ? selected.children : children === "1" ? 1 : Math.max(2, selected.children);
   const pool = periods.parentalPoolWeeks(nChildren, zaZyciem, params);
   const nt = params.parental.nonTransferableWeeksPerParent;
   const [partnerWeeks, setPartnerWeeks] = useState(nt);
@@ -79,7 +82,7 @@ export default function CalculatorPage() {
           <Panel>
             <h2 className="kr-card-title">Dzieci</h2>
             <div className="divide-y divide-kr-border">
-              <Row label="Liczba dzieci przy jednym porodzie">
+              <Row label={selected.event === "adopcja" ? "Liczba przyjętych dzieci" : "Liczba dzieci przy jednym porodzie"}>
                 <Segmented value={children} onChange={setChildren} options={[{ v: "1", l: "Jedno" }, { v: "2+", l: "Dwoje lub więcej" }]} />
               </Row>
               <Row label="Zaświadczenie „Za życiem”" hint="Dłuższy urlop rodzicielski">

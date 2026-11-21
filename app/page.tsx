@@ -32,7 +32,7 @@ export default function WelcomePage() {
           </Link>
         </Button>
         <Button asChild size="lg" variant="outline" className="h-14 rounded-2xl text-base">
-          <Link href="/pytania">
+          <Link href="/dane-reczne">
             <PencilLine aria-hidden /> Wprowadź dane samodzielnie
           </Link>
         </Button>

@@ -46,6 +46,7 @@ export const TITLE_LABEL: Record<string, string> = {
   umowa_zlecenie: "Umowa zlecenie",
   jdg: "Działalność gospodarcza",
   brak: "Brak tytułu",
+  inne: "Inny tytuł",
 };
 
 const MONTHS_SHORT = ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];

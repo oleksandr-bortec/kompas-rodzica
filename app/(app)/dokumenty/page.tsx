@@ -14,6 +14,7 @@ const WHERE_ICON = { pracodawca: Building2, ZUS: Landmark, "USC / gov.pl": Scrol
 export default function DocumentsPage() {
   const { persona } = usePersona();
   const [done, setDone] = useState<Record<string, boolean>>({});
+  if (!persona.demoPlan) return <PageHeader title="Dokumenty i wnioski" subtitle="Lista dokumentów dla profilu własnego jest w przygotowaniu." />;
   const docs = persona.demoPlan.documents;
   const name = (who: "A" | "B") => (who === "A" ? persona.a.name : persona.b?.name ?? "");
 
