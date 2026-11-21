@@ -159,3 +159,5 @@ vite.config.ts.timestamp-*
 # Przykładowe sprawy ZUS – nie publikować
 zus-samples/
 *.zus.pdf
+
+.claude/settings.local.json
