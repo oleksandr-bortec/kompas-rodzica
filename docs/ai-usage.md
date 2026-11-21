@@ -17,3 +17,4 @@ AI **nie liczy** kwot, okresów ani terminów i nie wydaje decyzji.
 | 2026-11-21 | Codex | Formularz danych ręcznych, walidacja i zapis profilu własnego oraz testy przekazywania danych do silnika. |
 | 2026-11-21 | Claude Code | Przygotowanie deployu: hasło /admin z ADMIN_PASSWORD, nagłówki bezpieczeństwa, CI GitHub Actions, README z instrukcją Vercel |
 | 2026-11-21 | Codex | Zapis stanu listy dokumentów dla każdego profilu demonstracyjnego, również po odświeżeniu i zmianie karty. |
+| 2026-11-21 | Claude Code | Silnik: lista dokumentów (co, dokąd, do kiedy) wg Kodeksu pracy i ustawy; ekran Dokumenty i „Następny krok” z silnika; daty po polsku |
