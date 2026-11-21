@@ -60,7 +60,10 @@ export default function AdminPage() {
                 body: JSON.stringify({ password: pwd }),
               });
               if (res.ok) setAuthed(true);
-              else setLoginError("Nieprawidłowe hasło");
+              else {
+                const d = (await res.json().catch(() => ({}))) as { error?: string };
+                setLoginError(d.error ?? "Nieprawidłowe hasło");
+              }
             }}
             className="grid gap-3"
           >
