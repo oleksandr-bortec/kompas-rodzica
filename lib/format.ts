@@ -1,3 +1,5 @@
+import { diffDays } from "./engine/dates";
+
 const dateFmt = new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "long", year: "numeric" });
 const dateShort = new Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "2-digit", year: "numeric" });
 
@@ -21,9 +23,12 @@ export function formatPLN2(v: number) {
 export const formatDate = (iso: string) => dateFmt.format(new Date(iso + "T12:00:00"));
 export const formatDateShort = (iso: string) => dateShort.format(new Date(iso + "T12:00:00"));
 
+const warsawDate = new Intl.DateTimeFormat("sv-SE", {
+  timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit",
+});
+
 export function daysUntil(iso: string, from = new Date()) {
-  const ms = new Date(iso + "T12:00:00").getTime() - from.getTime();
-  return Math.ceil(ms / 86_400_000);
+  return diffDays(warsawDate.format(from), iso);
 }
 
 export const SEGMENT_LABEL: Record<string, string> = {
@@ -32,6 +37,7 @@ export const SEGMENT_LABEL: Record<string, string> = {
   warunki_macierzynskiego: "Urlop na warunkach macierzyńskiego",
   rodzicielski: "Urlop rodzicielski",
   ojcowski: "Urlop ojcowski",
+  uzupelniajacy: "Urlop uzupełniający",
   praca: "Praca",
 };
 
@@ -41,3 +47,7 @@ export const TITLE_LABEL: Record<string, string> = {
   jdg: "Działalność gospodarcza",
   brak: "Brak tytułu",
 };
+
+const MONTHS_SHORT = ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];
+/** "2027-03" → "mar" (deterministic, no Intl — avoids hydration mismatch). */
+export const monthShort = (yyyyMm: string) => MONTHS_SHORT[Number(yyyyMm.slice(5, 7)) - 1];

@@ -1,6 +1,12 @@
 import { cn } from "@/lib/utils";
 import { SEGMENT_LABEL } from "@/lib/format";
-import type { Segment } from "@/lib/personas/types";
+export interface TimelineSegment {
+  parent: "A" | "B";
+  kind: string;
+  startWeek: number; // may be negative (before birth)
+  weeks: number;
+  percent: number;
+}
 
 /** Saturation encodes payment %: 100 solid, 81.5 medium, 70 light. Label always present. */
 function shade(parent: "A" | "B", percent: number) {
@@ -15,7 +21,7 @@ export function Timeline({
   nameB,
   className,
 }: {
-  segments: Segment[];
+  segments: TimelineSegment[];
   nameA: string;
   nameB?: string;
   className?: string;
@@ -23,10 +29,11 @@ export function Timeline({
   if (segments.length === 0) {
     return <p className="kr-small text-kr-text-2">Brak okresów do pokazania.</p>;
   }
-  const total = Math.max(...segments.map((s) => s.startWeek + s.weeks), 52);
+  const offset = Math.min(0, ...segments.map((s) => s.startWeek));
+  const total = Math.max(...segments.map((s) => s.startWeek + s.weeks), 52) - offset;
   const rows: { parent: "A" | "B"; name: string }[] = [{ parent: "A", name: nameA }];
   if (nameB && segments.some((s) => s.parent === "B")) rows.push({ parent: "B", name: nameB });
-  const ticks = Array.from({ length: Math.floor(total / 13) + 1 }, (_, i) => i * 13);
+  const ticks = Array.from({ length: Math.floor((total + offset) / 13) + 1 }, (_, i) => i * 13);
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -45,14 +52,14 @@ export function Timeline({
                     key={i}
                     className="absolute inset-y-1 flex items-center overflow-hidden rounded-lg px-2"
                     style={{
-                      left: `${(s.startWeek / total) * 100}%`,
+                      left: `${((s.startWeek - offset) / total) * 100}%`,
                       width: `max(${(s.weeks / total) * 100}%, 6px)`,
                       background: shade(row.parent, s.percent),
                     }}
-                    title={`${SEGMENT_LABEL[s.kind]} · ${s.weeks} tyg. · ${s.percent}%`}
+                    title={`${SEGMENT_LABEL[s.kind] ?? s.kind} · ${s.weeks} tyg. · ${s.percent}%`}
                   >
                     <span className={cn("truncate kr-caption", light ? (row.parent === "A" ? "text-kr-primary-dark" : "text-[#3E41A0]") : "text-white")}>
-                      {SEGMENT_LABEL[s.kind].replace("Urlop ", "")} · {s.percent}%
+                      {(SEGMENT_LABEL[s.kind] ?? s.kind).replace("Urlop ", "")} · {s.percent}%
                     </span>
                   </div>
                 );
@@ -62,7 +69,7 @@ export function Timeline({
       ))}
       <div className="relative h-4 kr-caption font-normal text-kr-text-2">
         {ticks.map((t) => (
-          <span key={t} className="absolute -translate-x-1/2 first:translate-x-0" style={{ left: `${(t / total) * 100}%` }}>
+          <span key={t} className="absolute -translate-x-1/2 first:translate-x-0" style={{ left: `${((t - offset) / total) * 100}%` }}>
             {t === 0 ? "start" : `${t} tyg.`}
           </span>
         ))}

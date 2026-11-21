@@ -1,28 +1,28 @@
 "use client";
 
 import { BookOpen } from "lucide-react";
-import { usePersona } from "@/components/kr/persona-provider";
+import { usePlan } from "@/components/kr/use-plan";
 import { PageHeader, Panel, ToneIcon } from "@/components/kr/ui";
 
-const SEVERITY = { danger: "Poważne", warning: "Ważne", info: "Dobrze wiedzieć", success: "OK" } as const;
+const SEVERITY = { danger: "Poważne", warning: "Ważne", info: "Dobrze wiedzieć" } as const;
 
-/** Ekran 10 — Ryzyka. */
+/** Ekran 10 — Ryzyka (z silnika reguł). */
 export default function RisksPage() {
-  const { persona } = usePersona();
-  const risks = persona.demoPlan.risks;
+  const { persona, plan } = usePlan();
+  const name = (p: "A" | "B") => (p === "A" ? persona.a.name : persona.b?.name);
   return (
     <div className="max-w-3xl">
       <PageHeader title="Ryzyka" subtitle="Co może odebrać lub obniżyć zasiłek — i jak temu zapobiec" back="/plan" />
-      {risks.length === 0 ? (
+      {plan.risks.length === 0 ? (
         <Panel><p className="text-kr-text-2">Nie widzimy ryzyk w Twojej sytuacji.</p></Panel>
       ) : (
         <ul className="space-y-4">
-          {risks.map((r) => (
+          {plan.risks.map((r) => (
             <Panel as="li" key={r.id}>
               <div className="flex gap-3">
-                <ToneIcon tone={r.tone} className="mt-0.5" />
+                <ToneIcon tone={r.severity} className="mt-0.5" />
                 <div className="flex-1">
-                  <p className="kr-caption text-kr-text-2">{SEVERITY[r.tone]}</p>
+                  <p className="kr-caption text-kr-text-2">{SEVERITY[r.severity]}{persona.b ? ` · ${name(r.parent)}` : ""}</p>
                   <h2 className="kr-card-title">{r.title}</h2>
                   <dl className="mt-3 space-y-2 kr-small">
                     <div><dt className="font-semibold">Dlaczego to ważne</dt><dd className="text-kr-text-2">{r.why}</dd></div>
