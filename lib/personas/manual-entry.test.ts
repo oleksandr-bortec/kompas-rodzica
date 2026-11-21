@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildPlan } from "@/lib/engine";
-import { customPersona, manualEntrySchema, type ManualFields } from "./manual-entry";
+import { customPersona, manualEntrySchema, wageMonths, type ManualFields } from "./manual-entry";
 import { personaToInput } from "./to-engine";
 
 const fields: ManualFields = {
@@ -60,5 +60,31 @@ describe("manual form → PlanInput", () => {
     { parentA: { ...fields.parentA, payerInsuredCount: "2,5" } },
   ])("rejects invalid input %j", changes => {
     expect(manualEntrySchema.safeParse({ ...fields, ...changes }).success).toBe(false);
+  });
+
+  it("lists the 12 months before the event month, newest first", () => {
+    expect(wageMonths("2027-03-15")).toEqual([
+      "2027-02", "2027-01", "2026-12", "2026-11", "2026-10", "2026-09",
+      "2026-08", "2026-07", "2026-06", "2026-05", "2026-04", "2026-03",
+    ]);
+  });
+
+  it("computes the base from 12 months of wages when no base is typed (avg − 13.71%)", () => {
+    const input = manualEntrySchema.parse({
+      ...fields, parentA: { ...fields.parentA, base: "", wages: Array(12).fill("6000"), fullTime: true },
+    });
+    expect(input.parentA.base).toBe(5177.4);
+  });
+
+  it("raises a full-time employee to the minimum base", () => {
+    const input = manualEntrySchema.parse({
+      ...fields, parentA: { ...fields.parentA, base: "", wages: ["3000", "3000", "", ""], fullTime: true },
+    });
+    expect(input.parentA.base).toBe(4147.1);
+  });
+
+  it("a typed base wins over wages", () => {
+    const input = manualEntrySchema.parse({ ...fields, parentA: { ...fields.parentA, wages: Array(12).fill("9000") } });
+    expect(input.parentA.base).toBe(5000.5);
   });
 });

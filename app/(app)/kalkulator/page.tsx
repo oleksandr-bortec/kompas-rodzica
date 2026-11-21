@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { usePersona } from "@/components/kr/persona-provider";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -52,6 +53,9 @@ export default function CalculatorPage() {
   const [variant, setVariant] = useState<"81.5" | "100-70">("81.5");
   const [zaZyciem, setZaZyciem] = useState(false);
   const [halfTimeA, setHalfTimeA] = useState(false);
+  const [eventOverride, setEventOverride] = useState<"porod" | "adopcja" | "rodzina_zastepcza" | null>(null);
+  const event = eventOverride ?? selected.event;
+  const [childAge, setChildAge] = useState(selected.childAgeYears ?? 2);
   const nChildren = override === null ? selected.children : children === "1" ? 1 : Math.max(2, selected.children);
   const pool = periods.parentalPoolWeeks(nChildren, zaZyciem, params);
   const nt = params.parental.nonTransferableWeeksPerParent;
@@ -66,7 +70,7 @@ export default function CalculatorPage() {
       parentalWeeksB: pool !== null ? wB : undefined,
       workFractionA: halfTimeA ? 0.5 : 0,
     },
-    { children: nChildren, zaZyciem },
+    { children: nChildren, zaZyciem, event, childAgeYears: event === "porod" ? undefined : childAge },
   );
   const nameA = persona.a.name;
   const nameB = persona.b?.name ?? "Drugi rodzic";
@@ -82,11 +86,31 @@ export default function CalculatorPage() {
           <Panel>
             <h2 className="kr-card-title">Dzieci</h2>
             <div className="divide-y divide-kr-border">
-              <Row label={selected.event === "adopcja" ? "Liczba przyjętych dzieci" : "Liczba dzieci przy jednym porodzie"}>
+              <Row label="Jak dziecko trafia do rodziny" hint="Adopcja i rodzina zastępcza: urlop na warunkach urlopu macierzyńskiego">
+                <Segmented
+                  value={event}
+                  onChange={setEventOverride}
+                  options={[{ v: "porod", l: "Poród" }, { v: "adopcja", l: "Adopcja" }, { v: "rodzina_zastepcza", l: "Rodz. zastępcza" }]}
+                />
+              </Row>
+              {event !== "porod" && (
+                <Row label="Wiek dziecka (lata)" hint={event === "adopcja" ? "Prawo do 14. roku życia" : "Prawo do 7. roku życia (10 przy odroczonej szkole)"}>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={18}
+                    value={childAge}
+                    onChange={(e) => setChildAge(Math.max(0, Number(e.target.value) || 0))}
+                    className="h-11 w-28"
+                    aria-label="Wiek dziecka w latach"
+                  />
+                </Row>
+              )}
+              <Row label={event === "porod" ? "Liczba dzieci przy jednym porodzie" : "Liczba przyjętych dzieci"}>
                 <Segmented value={children} onChange={setChildren} options={[{ v: "1", l: "Jedno" }, { v: "2+", l: "Dwoje lub więcej" }]} />
               </Row>
               <Row label="Zaświadczenie „Za życiem”" hint="Dłuższy urlop rodzicielski">
-                <Switch checked={zaZyciem} onCheckedChange={setZaZyciem} />
+                <Switch checked={zaZyciem} onCheckedChange={setZaZyciem} aria-label="Zaświadczenie „Za życiem”" />
               </Row>
             </div>
           </Panel>
@@ -112,7 +136,7 @@ export default function CalculatorPage() {
                 <Segmented value={variant} onChange={setVariant} options={[{ v: "81.5", l: "81,5% cały okres" }, { v: "100-70", l: "100% + 70%" }]} />
               </Row>
               <Row label={`${nameA}: praca na ½ etatu w czasie rodzicielskiego`} hint="Urlop wydłuża się proporcjonalnie">
-                <Switch checked={halfTimeA} onCheckedChange={setHalfTimeA} />
+                <Switch checked={halfTimeA} onCheckedChange={setHalfTimeA} aria-label={`${nameA}: praca na ½ etatu w czasie urlopu rodzicielskiego`} />
               </Row>
             </div>
           </Panel>

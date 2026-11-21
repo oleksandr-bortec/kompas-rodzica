@@ -19,7 +19,7 @@ import {
   paternityDeadline,
   validateParentalSplit,
 } from "./periods";
-import { plnText } from "./money";
+import { percentOf, plnText } from "./money";
 import { combinedRateDeadline, monthlyBenefit, ratePercent, resolveVariant } from "./amounts";
 import {
   PlanInputSchema,
@@ -80,7 +80,7 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
   const baseB = input.parentB?.base ?? null;
   if (baseA === null) todos.push("Brak podstawy wymiaru — kwot nie można policzyć (wzór podstawy: do uzupełnienia z materiałów ZUS).");
 
-  const addSegment = (parent: "A" | "B", kind: SegmentKind, start: string, weeks: number, opts?: { noAmount?: boolean }) => {
+  const addSegment = (parent: "A" | "B", kind: SegmentKind, start: string, weeks: number, opts?: { workFraction?: number }) => {
     const rate = ratePercent(kind, parent, variant, params);
     const base = parent === "A" ? baseA : baseB;
     const seg: Segment = {
@@ -91,7 +91,8 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
       startWeek: Math.round((diffDays(input.eventDate, start) / 7) * 100) / 100,
       weeks,
       ratePercent: rate,
-      monthlyAmount: opts?.noAmount ? null : monthlyBenefit(base, rate),
+      // art. 31 ust. 4a: benefit reduced proportionally to working time during parental leave
+      monthlyAmount: monthlyBenefit(base === null ? null : percentOf(base, 100 * (1 - (opts?.workFraction ?? 0))), rate),
     };
     segments.push(seg);
     return seg;
@@ -138,7 +139,8 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
   }
 
   /* 4. Paternity leave (second parent) */
-  const bInsured = !!eligB?.insuredOnEventDate;
+  // second parent needs the same right (insurance + child-age limit for adoption/foster)
+  const bInsured = !!eligB?.eligible;
   if (input.parentB && bInsured && o.paternityParts > 0) {
     const days = params.paternity.days;
     const start = isBirth ? addDays(input.eventDate, 14) : input.eventDate;
@@ -190,14 +192,13 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
           return start;
         }
         const working = fraction > 0;
-        const seg = addSegment(parent, "rodzicielski", start, extended, { noAmount: working });
+        const seg = addSegment(parent, "rodzicielski", start, extended, { workFraction: fraction });
         if (working) {
-          todos.push("Kwota zasiłku przy pracy w czasie urlopu rodzicielskiego — zasady obniżenia nie są opisane w materiałach ZUS.");
           trace.push({
             id: `parental-work-${parent}`,
             label: "Praca w czasie urlopu rodzicielskiego",
-            detail: `Praca na ${fraction * 100}% etatu wydłuża urlop proporcjonalnie: ${weeks} tyg. → ${extended} tyg.`,
-            rule: "params.parental.maxWorkFraction",
+            detail: `Praca na ${fraction * 100}% etatu wydłuża urlop proporcjonalnie (${weeks} tyg. → ${extended} tyg.), a zasiłek zmniejsza się proporcjonalnie do wymiaru pracy (${Math.round((1 - fraction) * 100)}% kwoty).`,
+            rule: "art. 31 ust. 4a ustawy zasiłkowej · params.parental.maxWorkFraction",
             values: { tygodnie: weeks, wydluzone: extended, etat: fraction },
           });
         }
@@ -317,13 +318,16 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
     });
   }
   if (input.parentB && !bInsured) {
+    const notInsured = !eligB?.insuredOnEventDate;
     risks.push({
       id: "b-not-insured",
       severity: "info",
-      title: "Drugi rodzic bez ubezpieczenia chorobowego",
-      why: "Bez ubezpieczenia chorobowego nie przysługuje zasiłek za urlop ojcowski ani rodzicielski.",
-      todo: "Sprawdź tytuł ubezpieczenia drugiego rodzica.",
-      rule: "Zasady z opisu wyzwania ZUS",
+      title: notInsured ? "Drugi rodzic bez ubezpieczenia chorobowego" : "Drugiemu rodzicowi zasiłek nie przysługuje",
+      why: notInsured
+        ? "Bez ubezpieczenia chorobowego nie przysługuje zasiłek za urlop ojcowski ani rodzicielski."
+        : (eligB?.reason ?? "Warunki prawa do zasiłku nie są spełnione."),
+      todo: notInsured ? "Sprawdź tytuł ubezpieczenia drugiego rodzica." : "Sprawdź dane w planie.",
+      rule: notInsured ? "Zasady z opisu wyzwania ZUS" : "art. 29 ustawy zasiłkowej",
       parent: "B",
     });
   }

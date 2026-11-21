@@ -84,16 +84,25 @@ describe("options", () => {
     const plan = buildPlan(personaToInput(ania, { parentalWeeksA: 35, parentalWeeksB: 6 }));
     expect(plan.errors.length).toBeGreaterThan(0);
   });
-  it("half-time work doubles the parental leave and leaves the amount as TODO", () => {
+  it("half-time work doubles the parental leave and halves the benefit (art. 31 ust. 4a)", () => {
     const plan = buildPlan(personaToInput(ania, { workFractionA: 0.5 }));
     const seg = plan.segments.find((s) => s.parent === "A" && s.kind === "rodzicielski")!;
     expect(seg.weeks).toBe(64);
-    expect(seg.monthlyAmount).toBeNull();
+    expect(seg.monthlyAmount).toBe(3341.5); // 8200 × 50% × 81.5%
   });
   it("trace explains every step", () => {
     const plan = buildPlan(personaToInput(ania));
     expect(plan.trace.map((t) => t.id)).toEqual(
       expect.arrayContaining(["params", "insurance-A", "payer-A", "variant", "maternity", "parental-split"]),
     );
+  });
+});
+
+describe("adoption above the child-age limit", () => {
+  it("neither parent gets leave when the adopted child is 15 (limit 14)", () => {
+    const plan = buildPlan({ ...personaToInput(getPersona("ewa-marek")), childAgeYears: 15 });
+    expect(plan.eligibility.A.eligible).toBe(false);
+    expect(plan.eligibility.B?.eligible).toBe(false);
+    expect(plan.segments).toEqual([]);
   });
 });
