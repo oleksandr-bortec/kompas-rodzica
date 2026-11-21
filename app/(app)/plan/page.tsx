@@ -40,7 +40,14 @@ export default function PlanPage() {
   const days = now && daysUntil(persona.eventDate, now);
   const eventWord = persona.event === "porod" ? "terminu porodu" : "przyjęcia dziecka";
   const variantLabel = plan.variantApplied === "81.5" ? "81,5%" : "100% + 70%";
-  const nextDeadline = plan.deadlines[0];
+  // Next step from engine output: a blocking risk first, then the earliest dated document.
+  const blocking = plan.risks.find((r) => r.severity === "danger");
+  const firstDoc = plan.documents.find((d) => d.deadline);
+  const nextStep = blocking
+    ? { title: blocking.todo, date: blocking.id === "contribution-debt" ? (plan.deadlines.find((d) => d.id === "debt")?.date ?? null) : null, href: "/ryzyka" }
+    : firstDoc
+      ? { title: `${firstDoc.what} — ${firstDoc.where}`, date: firstDoc.deadline, href: "/dokumenty" }
+      : { title: "Sprawdź lub popraw swoje dane", date: null, href: "/dane-reczne" };
   const months = planMonths(plan, persona.eventDate).map((m) => ({ month: monthShort(m.month), a: m.a, b: m.b }));
   const hasAmounts = months.some((m) => m.a + m.b > 0);
 
@@ -128,10 +135,10 @@ export default function PlanPage() {
             <span className="inline-flex items-center gap-1 rounded-full bg-kr-accent px-2.5 py-0.5 kr-caption text-kr-text">
               <CalendarClock className="size-3.5" aria-hidden /> Następny krok
             </span>
-            <p className="mt-3 kr-card-title">{persona.demoPlan?.nextStep.title ?? "Sprawdź lub popraw swoje dane"}</p>
-            {nextDeadline && <p className="mt-1 kr-small text-kr-text-2">{nextDeadline.label}: {formatDate(nextDeadline.date)}</p>}
+            <p className="mt-3 kr-card-title">{nextStep.title}</p>
+            {nextStep.date && <p className="mt-1 kr-small text-kr-text-2">do {formatDate(nextStep.date)}</p>}
             <Button asChild className="mt-4 h-12 w-full rounded-xl">
-              <Link href={persona.demoPlan?.nextStep.href ?? "/dane-reczne"}>Zrób to teraz <ArrowRight aria-hidden /></Link>
+              <Link href={nextStep.href}>Zrób to teraz <ArrowRight aria-hidden /></Link>
             </Button>
           </Panel>
 
@@ -161,9 +168,9 @@ export default function PlanPage() {
             </Panel>
           )}
 
-          {persona.demoPlan && <Panel>
+          {plan.documents.length > 0 && <Panel>
             <h2 className="kr-card-title">Dokumenty</h2>
-            <p className="mt-1 kr-small text-kr-text-2">{persona.demoPlan.documents.length} do złożenia</p>
+            <p className="mt-1 kr-small text-kr-text-2">{plan.documents.length} do złożenia lub przygotowania</p>
             <Button asChild variant="outline" className="mt-3 h-11 w-full rounded-xl">
               <Link href="/dokumenty">Zobacz listę</Link>
             </Button>

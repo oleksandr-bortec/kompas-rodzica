@@ -4,9 +4,10 @@
  * recording every decision in `trace` (used by „Dlaczego tyle?" and the AI explainer).
  */
 import { getParams, type Params } from "./params";
-import { addDays, addMonths, diffDays } from "./dates";
+import { addDays, addMonths, dateText, diffDays } from "./dates";
 import { checkEligibility, applyContractExtension, debtBlocksBenefit, debtThreshold, periodOn } from "./eligibility";
 import { determinePayer } from "./payer";
+import { buildDocuments } from "./documents";
 import {
   defaultParentalSplit,
   extendForPartTimeWork,
@@ -113,7 +114,7 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
         trace.push({
           id: "maternity",
           label: "Urlop macierzyński",
-          detail: `${weeks} tyg. (${before} przed porodem), ${seg.start} – ${seg.end}. Pierwsze ${params.maternity.motherOnlyWeeksAfterBirth} tyg. po porodzie — tylko matka.`,
+          detail: `${weeks} tyg. (${before} przed porodem), ${dateText(seg.start)} – ${dateText(seg.end)}. Pierwsze ${params.maternity.motherOnlyWeeksAfterBirth} tyg. po porodzie — tylko matka.`,
           rule: "params.maternity",
           values: { tygodnie: weeks, przedPorodem: before, procent: seg.ratePercent },
         });
@@ -128,7 +129,7 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
         trace.push({
           id: "adoption-leave",
           label: "Urlop na warunkach urlopu macierzyńskiego",
-          detail: `${weeks} tyg., ${seg.start} – ${seg.end}.`,
+          detail: `${weeks} tyg., ${dateText(seg.start)} – ${dateText(seg.end)}.`,
           rule: "params.adoption.weeksByChildren",
           values: { tygodnie: weeks, procent: seg.ratePercent },
         });
@@ -152,7 +153,7 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
     trace.push({
       id: "paternity",
       label: "Urlop ojcowski",
-      detail: `${days} dni (${o.paternityParts === 2 ? "można w 2 częściach po 7 dni" : "jednorazowo"}), w planie od ${seg.start}.`,
+      detail: `${days} dni (${o.paternityParts === 2 ? "można w 2 częściach po 7 dni" : "jednorazowo"}), w planie od ${dateText(seg.start)}.`,
       rule: "params.paternity",
       values: { dni: days, procent: seg.ratePercent },
     });
@@ -208,7 +209,7 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
       if (isBirth) {
         const last = parentalDeadline(input.eventDate, params);
         deadlines.push({ id: "parental", label: "Urlop rodzicielski do wykorzystania do", date: last, parent: "A", rule: "params.parental.untilChildAgeYearEnd" });
-        if (addDays(afterB, -1) > last) errors.push(`Urlop rodzicielski musi się skończyć do ${last}.`);
+        if (addDays(afterB, -1) > last) errors.push(`Urlop rodzicielski musi się skończyć do ${dateText(last)}.`);
       }
     }
   }
@@ -272,7 +273,7 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
         ? `Przy działalności gospodarczej zadłużenie powyżej ${plnText(debtThreshold(params))} (1% minimalnego wynagrodzenia) w dniu powstania prawa wstrzymuje zasiłek do spłaty całości.`
         : `Zadłużenie nie przekracza ${plnText(debtThreshold(params))} (1% minimalnego wynagrodzenia) albo nie dotyczy Twojego tytułu ubezpieczenia.`,
       todo: blocking
-        ? `Spłać całe zadłużenie najpóźniej do ${lastDay} — po 6 miesiącach prawo do zasiłku przedawnia się.`
+        ? `Spłać całe zadłużenie najpóźniej do ${dateText(lastDay)} — po 6 miesiącach prawo do zasiłku przedawnia się.`
         : "Mimo to warto uregulować zaległość przed porodem.",
       rule: "art. 2a ustawy zasiłkowej · params.debt",
       parent: "A",
@@ -299,7 +300,7 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
       severity: "info",
       title: `Termin ${params.combinedRate.applicationDeadlineDays} dni na wariant 81,5%`,
       why: "Po terminie zasiłek wyniesie 100% za macierzyński i 70% za rodzicielski.",
-      todo: `Złóż wniosek najpóźniej ${combinedRateDeadline(input.eventDate, params)}.`,
+      todo: `Złóż wniosek najpóźniej ${dateText(combinedRateDeadline(input.eventDate, params))}.`,
       rule: "params.combinedRate.applicationDeadlineDays",
       parent: "A",
     });
@@ -337,6 +338,7 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
     segments,
     monthly: { A: first("A"), B: first("B") },
     deadlines,
+    documents: buildDocuments(input, segments, { A: payerA, B: payerB }, eligA.eligible, variant, params),
     risks: risks.sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]),
     todos: [...new Set(todos)],
     errors: [...new Set(errors)],

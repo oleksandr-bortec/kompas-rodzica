@@ -127,6 +127,18 @@ export interface Risk {
   parent: ParentKey;
 }
 
+export interface DocumentItem {
+  id: string;
+  parent: ParentKey;
+  what: string;
+  form?: string;
+  where: "pracodawca" | "ZUS" | "USC / gov.pl" | "sąd";
+  /** Last day to submit (ISO) — null when there is no fixed date. */
+  deadline: string | null;
+  deadlineText: string;
+  rule: string;
+}
+
 export interface Plan {
   paramsVersion: string;
   eligibility: { A: EligibilityResult; B?: EligibilityResult };
@@ -136,6 +148,7 @@ export interface Plan {
   monthly: { A: number | null; B: number | null };
   deadlines: Deadline[];
   risks: Risk[];
+  documents: DocumentItem[];
   /** Missing rules/params — shown honestly instead of guessing. */
   todos: string[];
   errors: string[];

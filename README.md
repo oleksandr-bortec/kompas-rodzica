@@ -33,7 +33,7 @@ Wymagany Node.js ≥ 20.9 (zalecany 22, patrz `.nvmrc`).
 2. **Add New → Project → Import** repozytorium `kompas-rodzica`.
 3. Framework: **Next.js** (wykrywany automatycznie). Nic więcej nie trzeba zmieniać.
 4. **Environment Variables:** dodaj `ADMIN_PASSWORD` (hasło do `/admin`).
-   `ANTHROPIC_API_KEY` będzie potrzebny dopiero dla funkcji AI.
+   `ANTHROPIC_API_KEY` — klucz Claude API do odczytu akt w „Sprawdź sprawę” (bez niego działają przykładowe sprawy).
 5. **Deploy.** Każdy push do `main` aktualizuje produkcję, a każdy PR dostaje własny podgląd.
 
 ## Struktura
@@ -54,6 +54,7 @@ Wymagany Node.js ≥ 20.9 (zalecany 22, patrz `.nvmrc`).
 | `POST` | `/api/calculate` | pełny plan: prawo, płatnik, okresy, kwoty, terminy, ryzyka, trace |
 | `POST` | `/api/eligibility` | tylko prawo do zasiłku i kto wypłaca |
 | `GET` | `/api/params?date=RRRR-MM-DD` | parametry obowiązujące w danym dniu |
+| `POST` | `/api/cases/extract` | PDF akt (multipart, pole `file`) → dane odczytane przez AI do potwierdzenia (wymaga `ANTHROPIC_API_KEY`) |
 
 ## Zasady dla zespołu i agentów AI
 
