@@ -22,7 +22,8 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci
+      # npm ci fails on Linux: lockfile from macOS misses optional @emnapi deps (npm bug)
+      - run: npm install --no-audit --no-fund
       - run: npm run lint
       - run: npx tsc --noEmit
       - run: npm test
