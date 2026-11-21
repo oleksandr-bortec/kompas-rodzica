@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { Building2, ExternalLink, FileSignature, Landmark, ScrollText } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { usePersona } from "@/components/kr/persona-provider";
+import { usePlan } from "@/components/kr/use-plan";
+import { FormDownload } from "@/components/kr/form-download";
 import { SimAction } from "@/components/kr/sim-action";
 import { PageHeader, Panel, SymulacjaBadge } from "@/components/kr/ui";
 import type { DocItem } from "@/lib/personas/types";
@@ -65,9 +66,8 @@ function DocumentRow({ d, storageKey, parentName }: { d: DocItem; storageKey: st
 
 /** Ekran 9 — Dokumenty i wnioski. */
 export default function DocumentsPage() {
-  const { persona } = usePersona();
-  if (!persona.demoPlan) return <PageHeader title="Dokumenty i wnioski" subtitle="Lista dokumentów dla profilu własnego jest w przygotowaniu." />;
-  const docs = persona.demoPlan.documents;
+  const { persona, plan } = usePlan();
+  const docs = persona.demoPlan?.documents ?? [];
   const name = (who: "A" | "B") => (who === "A" ? persona.a.name : persona.b?.name ?? "");
 
   return (
@@ -76,6 +76,7 @@ export default function DocumentsPage() {
       <div className="grid gap-4 lg:grid-cols-[1fr_340px] lg:gap-6">
         <Panel>
           <h2 className="kr-card-title mb-2">Twoja lista</h2>
+          {!persona.demoPlan && <p className="kr-small text-kr-text-2">Możesz pobrać wzory wniosków z danymi swojego profilu.</p>}
           <ul className="divide-y divide-kr-border">
             {docs.map((d) => (
               <DocumentRow
@@ -105,9 +106,10 @@ export default function DocumentsPage() {
                 <dl className="grid grid-cols-2 gap-2 rounded-xl bg-muted p-3 kr-small">
                   <dt className="text-kr-text-2">Wnioskodawca</dt><dd>{persona.a.name}</dd>
                   <dt className="text-kr-text-2">Świadczenie</dt><dd>Zasiłek macierzyński</dd>
-                  <dt className="text-kr-text-2">Wariant</dt><dd>{persona.demoPlan.variant}</dd>
+                  <dt className="text-kr-text-2">Wariant</dt><dd>{plan.variantApplied === "81.5" ? "81,5%" : "100% + 70%"}</dd>
                 </dl>
               </SimAction>
+              <FormDownload kind="zam" persona={persona} plan={plan} />
               <SimAction
                 variant="outline"
                 label={<><Building2 aria-hidden /> Wniosek o urlop do pracodawcy</>}
@@ -115,6 +117,7 @@ export default function DocumentsPage() {
                 description="Jeden wniosek na oba urlopy. Wyślemy go do działu kadr."
                 done="Wniosek trafił do pracodawcy."
               />
+              <FormDownload kind="employer" persona={persona} plan={plan} />
             </div>
           </Panel>
           <Panel>
