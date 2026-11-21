@@ -1,5 +1,8 @@
 import { z } from "zod";
 import { InsurancePeriodSchema, PlanInputSchema, type ParentInput, type PlanInput } from "@/lib/engine/types";
+import { computeBase } from "@/lib/engine/base";
+import { addMonths } from "@/lib/engine/dates";
+import { getParams } from "@/lib/engine/params";
 import type { CustomPersona, ParentData } from "./types";
 
 const date = z.iso.date("Podaj poprawną datę.");
@@ -15,13 +18,35 @@ const parentForm = z.object({
   sickness: InsurancePeriodSchema.shape.sickness,
   payerInsuredCount: optionalWhole,
   base: z.union([z.literal("").transform(() => null), amount]),
+  /** Optional: gross income of the 12 months before the event month (index 0 = month right before). */
+  wages: z.array(z.union([z.literal("").transform(() => null), amount])).max(12).optional(),
+  fullTime: z.boolean().optional(),
 }).refine(p => !p.to || p.from <= p.to, {
   path: ["to"], message: "Data końca musi przypadać w dniu rozpoczęcia lub później.",
 });
 
-function toParent(p: z.output<typeof parentForm>, name: string): ParentInput {
-  const { base, to, ...period } = p;
-  return { name, base, periods: [{ ...period, to: to || null }] };
+/** The 12 calendar months before the event month, newest first: ["2026-02", "2026-01", …]. */
+export function wageMonths(eventDate: string): string[] {
+  const first = `${eventDate.slice(0, 7)}-01`;
+  return Array.from({ length: 12 }, (_, i) => addMonths(first, -(i + 1)).slice(0, 7));
+}
+
+/**
+ * Base: typed directly, or computed by the engine from the 12 months of wages
+ * (average − 13.71%, minimum for full time, cap for voluntary insurance).
+ */
+function toParent(p: z.output<typeof parentForm>, name: string, eventDate: string): ParentInput {
+  const { base, to, wages, fullTime, ...period } = p;
+  let finalBase = base;
+  const months = wageMonths(eventDate);
+  const filled = (wages ?? []).flatMap((gross, i) => (gross === null ? [] : [{ month: months[i], gross }]));
+  if (finalBase === null && filled.length > 0) {
+    finalBase = computeBase(
+      { employee: p.title === "umowa_o_prace", fullTime, voluntarySickness: p.sickness === "dobrowolne", months: filled },
+      getParams(eventDate),
+    ).base;
+  }
+  return { name, base: finalBase, periods: [{ ...period, to: to || null }] };
 }
 
 export const manualEntrySchema = z.object({
@@ -34,8 +59,8 @@ export const manualEntrySchema = z.object({
 }).transform((v): PlanInput => ({
   event: v.event, eventDate: v.eventDate, children: v.children,
   childAgeYears: v.event === "adopcja" ? v.childAgeYears : undefined,
-  parentA: toParent(v.parentA, "Rodzic 1"),
-  parentB: v.parentB ? toParent(v.parentB, "Rodzic 2") : undefined,
+  parentA: toParent(v.parentA, "Rodzic 1", v.eventDate),
+  parentB: v.parentB ? toParent(v.parentB, "Rodzic 2", v.eventDate) : undefined,
 })).pipe(PlanInputSchema);
 
 export type ManualFields = z.input<typeof manualEntrySchema>;

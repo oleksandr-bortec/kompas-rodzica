@@ -8,7 +8,7 @@ import { FlowShell } from "@/components/kr/flow-shell";
 import { SourceTag } from "@/components/kr/ui";
 import { usePersona } from "@/components/kr/persona-provider";
 import { Button } from "@/components/ui/button";
-import { manualEntrySchema, type ManualFields } from "@/lib/personas/manual-entry";
+import { manualEntrySchema, wageMonths, type ManualFields } from "@/lib/personas/manual-entry";
 
 const control = "block h-12 w-full min-w-0 max-w-full rounded-xl border border-kr-border bg-white px-3 text-base text-kr-text focus-visible:outline-2 focus-visible:outline-kr-primary";
 const group = "min-w-0 space-y-4 rounded-2xl border border-kr-border bg-kr-surface px-4 pb-5 pt-2";
@@ -23,9 +23,13 @@ function Field({ label, error, children }: { label: string; error?: string; chil
   );
 }
 
+const MONTH_NAMES = ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];
+
 function ParentFields({ who }: { who: "parentA" | "parentB" }) {
-  const { register, formState: { errors } } = useFormContext<ManualFields>();
+  const { register, watch, formState: { errors } } = useFormContext<ManualFields>();
   const err = errors[who];
+  const eventDate = watch("eventDate");
+  const months = /^\d{4}-\d{2}-\d{2}$/.test(eventDate ?? "") ? wageMonths(eventDate) : null;
   return (
     <fieldset className={group}>
       <legend className="px-1 kr-card-title">{who === "parentA" ? "Twoje ubezpieczenie" : "Ubezpieczenie drugiego rodzica"}</legend>
@@ -60,6 +64,25 @@ function ParentFields({ who }: { who: "parentA" | "parentB" }) {
       <Field label="Miesięczna podstawa wymiaru zasiłku w zł (opcjonalnie)" error={err?.base?.message}>
         <input inputMode="decimal" {...register(`${who}.base`)} className={control} />
       </Field>
+      <details className="rounded-xl bg-muted/60 p-3">
+        <summary className="cursor-pointer font-medium">Nie znasz podstawy? Wpisz wynagrodzenie z 12 miesięcy</summary>
+        <p className="mt-2 kr-small text-kr-text-2">
+          Przychód brutto z kolejnych miesięcy przed {months ? "miesiącem porodu" : "terminem (najpierw podaj datę)"}. Silnik policzy podstawę jak ZUS: średnia − 13,71%; przy pełnym etacie nie mniej niż minimum. Pole podstawy powyżej musi być puste.
+        </p>
+        {months && (
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {months.map((m, i) => (
+              <Field key={m} label={`${MONTH_NAMES[Number(m.slice(5, 7)) - 1]} ${m.slice(0, 4)}`}>
+                <input inputMode="decimal" placeholder="zł" {...register(`${who}.wages.${i}`)} className={control} />
+              </Field>
+            ))}
+          </div>
+        )}
+        <label className="mt-3 flex items-center gap-3 kr-small font-medium">
+          <input type="checkbox" className="size-5 accent-kr-primary" {...register(`${who}.fullTime`)} />
+          Pełny etat
+        </label>
+      </details>
     </fieldset>
   );
 }

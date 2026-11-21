@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronRight, ExternalLink, HeartHandshake, MessageSquare } from "lucide-react";
+import { Baby, ChevronRight, ExternalLink, HeartHandshake, MessageSquare } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { SimAction } from "@/components/kr/sim-action";
 import { PageHeader, Panel, SymulacjaBadge } from "@/components/kr/ui";
@@ -41,6 +41,16 @@ export default function HelpPage() {
       <PageHeader title="Pomoc" subtitle="Pytania, organizacje wsparcia i przydatne linki" />
       <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
         <div className="space-y-4">
+          <Link href="/w-ciazy" className="block">
+            <Panel className="flex items-center gap-4 transition-colors hover:border-kr-primary/40">
+              <Baby className="size-6 shrink-0 text-kr-primary" aria-hidden />
+              <div className="flex-1">
+                <p className="kr-card-title">W ciąży</p>
+                <p className="kr-small text-kr-text-2">Zasiłek chorobowy, świadczenie rehabilitacyjne i kiedy prawa nie ma.</p>
+              </div>
+              <ChevronRight className="size-5 text-kr-text-2" aria-hidden />
+            </Panel>
+          </Link>
           <Link href="/trudna-sytuacja" className="block">
             <Panel className="flex items-center gap-4 bg-kr-delicate-bg transition-colors hover:border-kr-delicate-btn/40">
               <HeartHandshake className="size-6 shrink-0 text-kr-delicate-btn" aria-hidden />

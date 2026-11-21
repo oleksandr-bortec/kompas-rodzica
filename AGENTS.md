@@ -98,8 +98,8 @@ nie przerywają okresu wyczekiwania (art. 4 ust. 2), zasiłek macierzyński bez 
 kwoty brutto, zaokrąglenie do grosza w górę od połowy.
 
 **Nadal brak / do zrobienia:** kwota świadczenia rodzicielskiego (minimum zasiłku, art. 31 ust. 3a),
-stawka dzienna dla niepełnych miesięcy (do potwierdzenia na decyzjach), obniżenie zasiłku przy pracy
-w czasie rodzicielskiego (art. 31 ust. 4a — proporcjonalnie), uzupełnianie niepełnych miesięcy w podstawie.
+stawka dzienna dla niepełnych miesięcy (do potwierdzenia na decyzjach), uzupełnianie niepełnych miesięcy
+w podstawie. (Obniżenie zasiłku przy pracy w czasie rodzicielskiego — art. 31 ust. 4a — już w silniku.)
 
 **Próbki spraw ZUS:** `zus-samples/sprawy/` (skany, poza repo). Testy na nich tylko w
 `tests/cases/zus/` (też w `.gitignore`) — nigdy nie przepisuj danych spraw do commitowanych plików.
