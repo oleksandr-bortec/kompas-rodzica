@@ -8,6 +8,8 @@ export interface TimelineSegment {
   percent: number;
 }
 
+const pct = (p: number) => `${String(p).replace(".", ",")}%`;
+
 /** Saturation encodes payment %: 100 solid, 81.5 medium, 70 light. Label always present. */
 function shade(parent: "A" | "B", percent: number) {
   const base = parent === "A" ? "14,124,102" : "91,95,199";
@@ -56,10 +58,12 @@ export function Timeline({
                       width: `max(${(s.weeks / total) * 100}%, 6px)`,
                       background: shade(row.parent, s.percent),
                     }}
-                    title={`${SEGMENT_LABEL[s.kind] ?? s.kind} · ${s.weeks} tyg. · ${s.percent}%`}
+                    title={`${SEGMENT_LABEL[s.kind] ?? s.kind} · ${s.weeks} tyg. · ${pct(s.percent)}`}
                   >
                     <span className={cn("truncate kr-caption", light ? (row.parent === "A" ? "text-kr-primary-dark" : "text-[#3E41A0]") : "text-white")}>
-                      {(SEGMENT_LABEL[s.kind] ?? s.kind).replace("Urlop ", "")} · {s.percent}%
+                      {(s.weeks / total) * 100 < 14
+                        ? pct(s.percent)
+                        : `${(SEGMENT_LABEL[s.kind] ?? s.kind).replace("Urlop ", "")} · ${pct(s.percent)}`}
                     </span>
                   </div>
                 );

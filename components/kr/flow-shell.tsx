@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { Compass } from "lucide-react";
+import { DocTitle } from "./doc-title";
 
 /** Minimal shell for onboarding flows (no main navigation). */
-export function FlowShell({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
+export function FlowShell({ children, right, title }: { children: React.ReactNode; right?: React.ReactNode; title?: string }) {
   return (
     <div className="mx-auto flex min-h-dvh max-w-xl flex-col px-4 pb-10 pt-5 sm:px-6">
+      {title && <DocTitle title={title} />}
       <div className="mb-8 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <span className="grid size-8 place-items-center rounded-lg bg-kr-primary text-white">

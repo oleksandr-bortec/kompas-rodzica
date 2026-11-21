@@ -20,6 +20,8 @@ const PersonaContext = createContext<Ctx | null>(null);
 export function PersonaProvider({ children }: { children: React.ReactNode }) {
   const [persona, setPersona] = useState<Persona>(getPersona(DEFAULT_PERSONA_ID));
   const [manualFields, setManualFields] = useState<ManualFields | null>(null);
+  // Hide content until the saved persona is restored, so the default one never flashes.
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     try {
@@ -33,6 +35,7 @@ export function PersonaProvider({ children }: { children: React.ReactNode }) {
         if (active === "custom") setPersona(custom);
       }
     } catch { /* Unavailable storage or an invalid saved profile. */ }
+    setReady(true);
   }, []);
 
   function setPersonaId(id: DemoPersona["id"]) {
@@ -52,7 +55,7 @@ export function PersonaProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <PersonaContext.Provider value={{ persona, manualFields, setPersonaId, saveCustom }}>
-      {children}
+      <div style={ready ? undefined : { opacity: 0 }}>{children}</div>
     </PersonaContext.Provider>
   );
 }

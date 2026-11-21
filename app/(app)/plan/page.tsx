@@ -16,8 +16,11 @@ import type { Payer } from "@/lib/engine";
 function PayerChip({ payer }: { payer: Payer }) {
   const Icon = payer === "ZUS" ? Landmark : Building2;
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 kr-small font-medium">
-      <Icon className="size-4 text-kr-text-2" aria-hidden /> Wypłaca: {PAYER_LABEL[payer]}
+    <span
+      className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-muted px-2.5 py-1 kr-small font-medium"
+      title={payer === "platnik" ? "Płatnik zgłasza ponad 20 osób do ubezpieczenia chorobowego" : undefined}
+    >
+      <Icon className="size-4 text-kr-text-2" aria-hidden /> Wypłaca: {payer === "platnik" ? "pracodawca" : PAYER_LABEL[payer]}
     </span>
   );
 }
@@ -47,7 +50,11 @@ export default function PlanPage() {
   const nextStep = blocking
     ? { title: blocking.todo, date: blocking.id === "contribution-debt" ? (plan.deadlines.find((d) => d.id === "debt")?.date ?? null) : null, href: "/ryzyka" }
     : firstDoc
-      ? { title: `${firstDoc.what} — ${firstDoc.where}`, date: firstDoc.deadline, href: "/dokumenty" }
+      ? {
+          title: `${persona.b ? `${firstDoc.parent === "A" ? persona.a.name : persona.b.name}: ` : ""}${firstDoc.what} — ${firstDoc.where}`,
+          date: firstDoc.deadline,
+          href: "/dokumenty",
+        }
       : { title: "Sprawdź lub popraw swoje dane", date: null, href: "/dane-reczne" };
   const months = planMonths(plan, persona.eventDate).map((m) => ({ month: monthShort(m.month), a: m.a, b: m.b }));
   const hasAmounts = months.some((m) => m.a + m.b > 0);
@@ -67,6 +74,7 @@ export default function PlanPage() {
   return (
     <div>
       <PageHeader
+        docTitle="Twój plan"
         title={persona.id === "custom" ? "Twój plan" : `Cześć, ${persona.a.name}${persona.b ? ` i ${persona.b.name}` : ""}`}
         subtitle={
           days !== null && days > 0 ? `Do ${eventWord}: ${days} ${days === 1 ? "dzień" : "dni"} (${formatDate(persona.eventDate)})` : `Data ${eventWord}: ${formatDate(persona.eventDate)}`

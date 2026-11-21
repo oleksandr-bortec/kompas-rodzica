@@ -137,7 +137,7 @@ function ManualForm({ saved }: { saved: ManualFields | null }) {
 export default function ManualEntryPage() {
   const { manualFields } = usePersona();
   return (
-    <FlowShell>
+    <FlowShell title="Wprowadź dane">
       <h1 className="kr-h1">Wprowadź dane samodzielnie</h1>
       <p className="my-2 text-kr-text-2">Na podstawie tych danych obliczymy Twój plan. Zapiszemy je w tej przeglądarce.</p>
       <div><SourceTag source="user" /></div>
