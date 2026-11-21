@@ -14,3 +14,5 @@ AI **nie liczy** kwot, okresów ani terminów i nie wydaje decyzji.
 | 2026-11-21 | Claude Code | Silnik reguł lib/engine (prawo, płatnik, okresy, kwoty, terminy, ryzyka, trace) + 71 testów Vitest; REST /api/calculate, /api/eligibility, /api/params |
 | 2026-11-21 | Codex | Poprawiono odliczanie na ekranie planu według daty w Polsce i dodano testy granic dnia oraz zmian czasu. |
 | 2026-11-21 | Codex | Formularz danych ręcznych, walidacja i zapis profilu własnego oraz testy przekazywania danych do silnika. |
+| 2026-11-21 | Claude Code | Przygotowanie deployu: hasło /admin z ADMIN_PASSWORD, nagłówki bezpieczeństwa, CI GitHub Actions, README z instrukcją Vercel |
+| 2026-11-21 | Codex | Zapis stanu listy dokumentów dla każdego profilu demonstracyjnego, również po odświeżeniu i zmianie karty. |

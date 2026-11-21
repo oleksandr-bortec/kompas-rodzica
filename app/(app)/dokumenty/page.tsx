@@ -1,19 +1,71 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Building2, ExternalLink, FileSignature, Landmark, ScrollText } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { usePersona } from "@/components/kr/persona-provider";
 import { SimAction } from "@/components/kr/sim-action";
 import { PageHeader, Panel, SymulacjaBadge } from "@/components/kr/ui";
+import type { DocItem } from "@/lib/personas/types";
 import { cn } from "@/lib/utils";
 
 const WHERE_ICON = { pracodawca: Building2, ZUS: Landmark, "USC / gov.pl": ScrollText } as const;
 
+function DocumentRow({ d, storageKey, parentName }: { d: DocItem; storageKey: string; parentName?: string }) {
+  const [done, setDone] = useState(false);
+  const Icon = WHERE_ICON[d.where];
+
+  useEffect(() => {
+    function restore() {
+      try {
+        setDone(localStorage.getItem(storageKey) === "1");
+      } catch {
+        // Storage can be disabled in private browsing.
+      }
+    }
+    function onStorage(event: StorageEvent) {
+      if (event.key === storageKey || event.key === null) restore();
+    }
+    restore();
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [storageKey]);
+
+  function toggle(checked: boolean) {
+    setDone(checked);
+    try {
+      if (checked) localStorage.setItem(storageKey, "1");
+      else localStorage.removeItem(storageKey);
+    } catch {
+      // Keep the checkbox usable for this visit.
+    }
+  }
+
+  return (
+    <li className="flex gap-3 py-4">
+      <Checkbox
+        checked={done}
+        onCheckedChange={(value) => toggle(value === true)}
+        className="mt-1"
+        aria-label={`Oznacz jako zrobione: ${d.what}`}
+      />
+      <div className="flex-1">
+        <p className={cn("font-medium", done && "text-kr-text-2 line-through")}>
+          {d.what} {d.form && <span className="ml-1 rounded bg-muted px-1.5 py-0.5 kr-caption">{d.form}</span>}
+        </p>
+        <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 kr-small text-kr-text-2">
+          <span className="inline-flex items-center gap-1"><Icon className="size-4" aria-hidden /> {d.where}</span>
+          <span>· {d.deadline}</span>
+          {parentName && <span>· {parentName}</span>}
+        </p>
+      </div>
+    </li>
+  );
+}
+
 /** Ekran 9 — Dokumenty i wnioski. */
 export default function DocumentsPage() {
   const { persona } = usePersona();
-  const [done, setDone] = useState<Record<string, boolean>>({});
   if (!persona.demoPlan) return <PageHeader title="Dokumenty i wnioski" subtitle="Lista dokumentów dla profilu własnego jest w przygotowaniu." />;
   const docs = persona.demoPlan.documents;
   const name = (who: "A" | "B") => (who === "A" ? persona.a.name : persona.b?.name ?? "");
@@ -25,29 +77,14 @@ export default function DocumentsPage() {
         <Panel>
           <h2 className="kr-card-title mb-2">Twoja lista</h2>
           <ul className="divide-y divide-kr-border">
-            {docs.map((d) => {
-              const Icon = WHERE_ICON[d.where];
-              return (
-                <li key={d.id} className="flex gap-3 py-4">
-                  <Checkbox
-                    checked={!!done[d.id]}
-                    onCheckedChange={(v) => setDone({ ...done, [d.id]: v === true })}
-                    className="mt-1"
-                    aria-label={`Oznacz jako zrobione: ${d.what}`}
-                  />
-                  <div className="flex-1">
-                    <p className={cn("font-medium", done[d.id] && "text-kr-text-2 line-through")}>
-                      {d.what} {d.form && <span className="ml-1 rounded bg-muted px-1.5 py-0.5 kr-caption">{d.form}</span>}
-                    </p>
-                    <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 kr-small text-kr-text-2">
-                      <span className="inline-flex items-center gap-1"><Icon className="size-4" aria-hidden /> {d.where}</span>
-                      <span>· {d.deadline}</span>
-                      {persona.b && <span>· {name(d.who)}</span>}
-                    </p>
-                  </div>
-                </li>
-              );
-            })}
+            {docs.map((d) => (
+              <DocumentRow
+                key={`${persona.id}.${d.id}`}
+                storageKey={`kr.documents.${persona.id}.${d.id}`}
+                d={d}
+                parentName={persona.b ? name(d.who) : undefined}
+              />
+            ))}
           </ul>
         </Panel>
 

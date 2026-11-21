@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Compass, Lock, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,8 +21,9 @@ function flatten(obj: Record<string, unknown>, prefix = ""): Flat[] {
 }
 
 /**
- * Ekran 14 — Panel administracyjny. Skeleton: login gate + parameter table.
- * TODO: real auth via ADMIN_PASSWORD (server) and PUT /api/params saving a new version.
+ * Ekran 14 — Panel administracyjny: login (ADMIN_PASSWORD, /api/admin/login) + parameter table.
+ * TODO: saving a new params version needs persistent storage (Vercel FS is read-only) —
+ * e.g. Supabase / Vercel KV behind PUT /api/params.
  */
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
@@ -32,6 +33,14 @@ export default function AdminPage() {
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [from, setFrom] = useState("");
   const [saved, setSaved] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/admin/login")
+      .then((r) => r.json())
+      .then((d: { authed?: boolean }) => d.authed && setAuthed(true))
+      .catch(() => {});
+  }, []);
 
   if (!authed) {
     return (
@@ -42,14 +51,22 @@ export default function AdminPage() {
             <h1 className="kr-h2">Panel administracyjny</h1>
           </div>
           <form
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault();
-              if (pwd.length > 0) setAuthed(true); // TODO: verify on server
+              setLoginError(null);
+              const res = await fetch("/api/admin/login", {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify({ password: pwd }),
+              });
+              if (res.ok) setAuthed(true);
+              else setLoginError("Nieprawidłowe hasło");
             }}
             className="grid gap-3"
           >
             <Label htmlFor="pwd">Hasło</Label>
-            <Input id="pwd" type="password" value={pwd} onChange={(e) => setPwd(e.target.value)} className="h-12" />
+            <Input id="pwd" type="password" value={pwd} onChange={(e) => setPwd(e.target.value)} className="h-12" autoComplete="current-password" />
+            {loginError && <p className="kr-small text-kr-danger" role="alert">{loginError}</p>}
             <Button type="submit" className="h-12 rounded-xl">Zaloguj</Button>
           </form>
         </Panel>
