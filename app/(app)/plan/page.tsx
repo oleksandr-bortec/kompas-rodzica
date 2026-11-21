@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Building2, CalendarClock, ChevronRight, HelpCircle, Landmark } from "lucide-react";
+import { ArrowRight, Building2, CalendarClock, CalendarPlus, ChevronRight, HelpCircle, Landmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MonthlyChart } from "@/components/kr/monthly-chart";
 import { Timeline } from "@/components/kr/timeline";
 import { PAYER_LABEL, usePlan } from "@/components/kr/use-plan";
 import { PageHeader, Panel, ToneBox, ToneIcon } from "@/components/kr/ui";
 import { daysUntil, formatDate, formatPLN, monthShort } from "@/lib/format";
+import { deadlinesToIcs } from "@/lib/calendar/ics";
 import { planMonths } from "@/lib/engine/months";
 import type { Payer } from "@/lib/engine";
 
@@ -43,6 +44,18 @@ export default function PlanPage() {
   const nextDeadline = plan.deadlines[0];
   const months = planMonths(plan, persona.eventDate).map((m) => ({ month: monthShort(m.month), a: m.a, b: m.b }));
   const hasAmounts = months.some((m) => m.a + m.b > 0);
+
+  function downloadCalendar() {
+    const calendar = deadlinesToIcs(plan.deadlines, `${persona.id}/${persona.eventDate}`, new Date());
+    const url = URL.createObjectURL(new Blob([calendar], { type: "text/calendar;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "kompas-rodzica-terminy.ics";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
 
   return (
     <div>
@@ -146,6 +159,9 @@ export default function PlanPage() {
                   </li>
                 ))}
               </ul>
+              <Button type="button" variant="outline" className="mt-3 h-11 w-full rounded-xl" onClick={downloadCalendar}>
+                <CalendarPlus aria-hidden /> Dodaj terminy do kalendarza
+              </Button>
             </Panel>
           )}
 
