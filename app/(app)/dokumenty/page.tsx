@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BookOpen, Building2, ExternalLink, FileSignature, Gavel, Landmark, ScrollText } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { usePlan } from "@/components/kr/use-plan";
+import { FormDownload } from "@/components/kr/form-download";
 import { SimAction } from "@/components/kr/sim-action";
 import { PageHeader, Panel, SymulacjaBadge } from "@/components/kr/ui";
 import type { DocumentItem } from "@/lib/engine";
@@ -115,6 +116,7 @@ export default function DocumentsPage() {
                   <dt className="text-kr-text-2">Wariant</dt><dd>{variantLabel}</dd>
                 </dl>
               </SimAction>
+              <FormDownload kind="zam" persona={persona} plan={plan} />
               <SimAction
                 variant="outline"
                 label={<><Building2 aria-hidden /> Wniosek o urlop do pracodawcy</>}
@@ -122,6 +124,7 @@ export default function DocumentsPage() {
                 description="Jeden wniosek na oba urlopy. Wyślemy go do działu kadr."
                 done="Wniosek trafił do pracodawcy."
               />
+              <FormDownload kind="employer" persona={persona} plan={plan} />
             </div>
           </Panel>
           <Panel>
