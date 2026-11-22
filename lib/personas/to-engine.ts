@@ -4,7 +4,7 @@ import type { ParentData, Persona } from "./types";
 function toParent(d: ParentData): ParentInput {
   return {
     name: d.name,
-    base: d.avgMonthlyBase, // demo: podstawa podana wprost (wzór: TODO ZUS)
+    base: d.avgMonthlyBase, // demo: ZUS podaje już podstawę wymiaru zasiłku (średnia z 12 mies. po odliczeniu 13,71%)
     contributionDebt: d.contributionDebt,
     periods: d.periods.map((p) => ({
       title: p.title === "brak" ? "inne" : p.title,

@@ -20,7 +20,7 @@ export function determinePayer(
   let detail: string;
   if (!p) {
     payer = "nieznany";
-    detail = "Brak tytułu ubezpieczenia w dniu zdarzenia.";
+    detail = `Brak tytułu ubezpieczenia w dniu ${dateText(date)} — nie ma kto wypłacić zasiłku.`;
   } else if (p.title === "jdg") {
     payer = "ZUS";
     detail = "Działalność gospodarcza — zasiłek wypłaca ZUS.";

@@ -77,6 +77,9 @@ export default function CalculatorPage() {
   const segA = plan.segments.filter((s) => s.parent === "A");
   const segB = plan.segments.filter((s) => s.parent === "B");
   const weeksOf = (segs: typeof segA, kind: string) => segs.filter((s) => s.kind === kind).reduce((n, s) => n + s.weeks, 0);
+  const parentalA = segA.find((s) => s.kind === "rodzicielski")?.monthlyAmount ?? null;
+  const eligA = plan.eligibility.A;
+  const eligB = plan.eligibility.B;
 
   return (
     <div>
@@ -162,7 +165,8 @@ export default function CalculatorPage() {
                   <span className="ml-1 kr-small font-medium text-kr-text-2">/ mies.</span>
                 </p>
                 <p className="kr-small text-kr-text-2">
-                  macierzyński {weeksOf(segA, "macierzynski") || weeksOf(segA, "warunki_macierzynskiego")} tyg. · rodzicielski {weeksOf(segA, "rodzicielski")} tyg.
+                  {event === "porod" ? "macierzyński" : "na warunkach macierzyńskiego"} {weeksOf(segA, "macierzynski") || weeksOf(segA, "warunki_macierzynskiego")} tyg. · rodzicielski {weeksOf(segA, "rodzicielski")} tyg.
+                  {parentalA !== null && parentalA !== plan.monthly.A && <> ({formatPLN(parentalA)} / mies.)</>}
                 </p>
               </div>
               {persona.b && (
@@ -179,6 +183,10 @@ export default function CalculatorPage() {
               )}
             </div>
           </Panel>
+          {eligA.eligible !== true && <ToneBox tone={eligA.eligible === null ? "warning" : "danger"} title={`${nameA}: ${eligA.reason}`} />}
+          {persona.b && eligB && eligB.eligible !== true && eligB.reason !== eligA.reason && (
+            <ToneBox tone={eligB.eligible === null ? "warning" : "danger"} title={`${nameB}: ${eligB.reason}`} />
+          )}
           {plan.errors.map((e) => <ToneBox key={e} tone="danger" title={e} />)}
           {plan.todos.length > 0 && (
             <ToneBox tone="info" title="Czego jeszcze nie liczymy">

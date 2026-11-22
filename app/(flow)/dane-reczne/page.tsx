@@ -97,7 +97,7 @@ function ManualForm({ saved }: { saved: ManualFields | null }) {
   const methods = useForm<ManualFields>({
     defaultValues: saved ?? { event: "porod", children: "1" },
     shouldUnregister: true,
-    resolver: zodResolver(manualEntrySchema, { error: () => "Sprawdź wartość tego pola." }, { raw: true }),
+    resolver: zodResolver(manualEntrySchema, { error: (issue) => (issue.code === "invalid_value" ? "Wybierz jedną z opcji." : "Sprawdź wartość tego pola.") }, { raw: true }),
   });
   const { register, watch, handleSubmit, formState: { errors } } = methods;
   const adoption = watch("event") === "adopcja";
@@ -141,7 +141,7 @@ export default function ManualEntryPage() {
   const { manualFields, draftFields } = usePersona();
   const initial = draftFields ?? manualFields;
   return (
-    <FlowShell title="Wprowadź dane">
+    <FlowShell>
       <h1 className="kr-h1">Wprowadź dane samodzielnie</h1>
       <p className="my-2 text-kr-text-2">Na podstawie tych danych obliczymy Twój plan. Zapiszemy je w tej przeglądarce.</p>
       <div><SourceTag source="user" /></div>

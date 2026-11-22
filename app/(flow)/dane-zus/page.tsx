@@ -55,7 +55,7 @@ function ParentCards({ d }: { d: ParentData }) {
               )}
             </div>
           ))}
-          <Field label="Przeciętna podstawa wymiaru (12 mies.)" value={d.avgMonthlyBase === null ? "Brak danych" : formatPLN(d.avgMonthlyBase)} source="zus" action={<EditBtn />} />
+          <Field label="Podstawa wymiaru zasiłku (śr. z 12 mies.)" value={d.avgMonthlyBase === null ? "Brak danych" : formatPLN(d.avgMonthlyBase)} source="zus" action={<EditBtn />} />
         </div>
       </Panel>
 
@@ -104,10 +104,10 @@ function ParentCards({ d }: { d: ParentData }) {
 export default function ZusDataPage() {
   const { persona } = usePersona();
   if (persona.id === "custom") return (
-    <FlowShell title="Twoje dane z ZUS"><Button asChild><Link href="/dane-reczne">Edytuj wpisane dane</Link></Button></FlowShell>
+    <FlowShell><Button asChild><Link href="/dane-reczne">Edytuj wpisane dane</Link></Button></FlowShell>
   );
   return (
-    <FlowShell title="Twoje dane z ZUS" right={<SymulacjaBadge />}>
+    <FlowShell right={<SymulacjaBadge />}>
       <h1 className="kr-h1">Twoje dane z ZUS</h1>
       <p className="mt-2 mb-6 text-kr-text-2">Sprawdź, czy wszystko się zgadza. Każde pole ma oznaczone źródło.</p>
       <div className="space-y-8">

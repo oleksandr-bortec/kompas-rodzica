@@ -131,7 +131,10 @@ export function checkEligibility(
   });
 
   let eligible: boolean | null = insured;
-  let reason = insured ? "Ubezpieczenie chorobowe w dniu zdarzenia." : "Brak ubezpieczenia chorobowego w dniu zdarzenia.";
+  const day = `w dniu ${input.event === "porod" ? "porodu" : "przyjęcia dziecka"} (${dateText(date)})`;
+  let reason = insured
+    ? `Jest ubezpieczenie chorobowe ${day}.`
+    : `Brak ubezpieczenia chorobowego ${day} — to warunek prawa do zasiłku.`;
 
   if (insured && debtBlocksBenefit(periods, date, data.contributionDebt, params)) {
     eligible = false;

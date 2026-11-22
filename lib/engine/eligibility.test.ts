@@ -98,3 +98,18 @@ describe("yearsPl", () => {
     expect(yearsPl(22)).toBe("22 lata");
   });
 });
+
+describe("eligibility reason names the day and date", () => {
+  it("birth without insurance", async () => {
+    const { buildPlan } = await import("./plan");
+    const plan = buildPlan({ event: "porod", eventDate: "2027-02-20", parentA: { base: null, periods: [uop("2020-01-01", "2027-01-31")] } });
+    expect(plan.eligibility.A.eligible).toBe(false);
+    expect(plan.eligibility.A.reason).toBe("Brak ubezpieczenia chorobowego w dniu porodu (20.02.2027) — to warunek prawa do zasiłku.");
+  });
+  it("birth with insurance", async () => {
+    const { buildPlan } = await import("./plan");
+    const plan = buildPlan({ event: "porod", eventDate: "2027-03-15", parentA: { base: 8000, periods: [uop("2020-01-01", null)] } });
+    expect(plan.eligibility.A.reason).toBe("Jest ubezpieczenie chorobowe w dniu porodu (15.03.2027).");
+    expect(plan.paramsEffectiveFrom).toBe("2026-01-01");
+  });
+});

@@ -21,9 +21,10 @@ export function MonthlyChart({ data, nameA, nameB }: { data: MonthRow[]; nameA: 
             axisLine={false}
             width={44}
             tick={{ fontSize: 12, fill: "#5C6966" }}
-            tickFormatter={(v: number) => (v >= 1000 ? `${Math.round(v / 1000)}k` : String(v))}
+            tickFormatter={(v: number) => (v >= 1000 ? `${String(Math.round(v / 100) / 10).replace(".", ",")}k` : String(v))}
           />
           <Tooltip
+            separator=": "
             formatter={(v, key) => [formatPLN(Number(v)), key === "a" ? nameA : nameB ?? ""]}
             contentStyle={{ borderRadius: 12, border: "1px solid #E5E2DC" }}
           />

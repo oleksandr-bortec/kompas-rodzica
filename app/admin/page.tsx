@@ -6,7 +6,6 @@ import { Compass, History, Lock, RotateCcw, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { DocTitle } from "@/components/kr/doc-title";
 import { Panel, ToneBox } from "@/components/kr/ui";
 import { allParamVersions, getParams, PARAM_VERSIONS, type Params } from "@/lib/engine/params";
 import { clearRuntimeParams, loadRuntimeParams, saveRuntimeVersion, withEdits } from "@/lib/engine/params/runtime";
@@ -96,7 +95,6 @@ export default function AdminPage() {
   if (!authed) {
     return (
       <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center px-4">
-        <DocTitle title="Panel administracyjny" />
         <Panel>
           <div className="mb-4 flex items-center gap-2">
             <Lock className="size-5 text-kr-primary" aria-hidden />
@@ -131,7 +129,6 @@ export default function AdminPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <DocTitle title="Panel administracyjny" />
       <div className="mb-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-heading font-extrabold text-kr-primary-dark">
           <Compass className="size-5" aria-hidden /> Kompas Rodzica · Admin

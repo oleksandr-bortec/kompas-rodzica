@@ -36,6 +36,7 @@ export function Timeline({
   const rows: { parent: "A" | "B"; name: string }[] = [{ parent: "A", name: nameA }];
   if (nameB && segments.some((s) => s.parent === "B")) rows.push({ parent: "B", name: nameB });
   const ticks = Array.from({ length: Math.floor((total + offset) / 13) + 1 }, (_, i) => i * 13);
+  const legend = [...new Set(segments.map((s) => s.percent))].sort((a, b) => b - a);
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -79,9 +80,9 @@ export function Timeline({
         ))}
       </div>
       <ul className="flex flex-wrap gap-x-4 gap-y-1 kr-small text-kr-text-2">
-        <li className="flex items-center gap-1.5"><span className="size-3 rounded" style={{ background: shade("A", 100) }} />100%</li>
-        <li className="flex items-center gap-1.5"><span className="size-3 rounded" style={{ background: shade("A", 81.5) }} />81,5%</li>
-        <li className="flex items-center gap-1.5"><span className="size-3 rounded" style={{ background: shade("A", 70) }} />70%</li>
+        {legend.map((p) => (
+          <li key={p} className="flex items-center gap-1.5"><span className="size-3 rounded" style={{ background: shade("A", p) }} />{pct(p)}</li>
+        ))}
       </ul>
     </div>
   );

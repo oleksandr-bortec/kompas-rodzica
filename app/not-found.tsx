@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export const metadata = { title: "Nie znaleziono strony · Kompas Rodzica" };
+export const metadata = { title: "Nie znaleziono strony" };
 
 export default function NotFound() {
   return (

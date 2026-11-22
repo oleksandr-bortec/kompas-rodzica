@@ -13,7 +13,7 @@ import { Panel, SymulacjaBadge } from "@/components/kr/ui";
 const DATA_SCOPE = [
   ["Okresy ubezpieczenia i tytuły", "żeby sprawdzić prawo do zasiłku (30/90 dni)"],
   ["Rodzaj ubezpieczenia chorobowego", "obowiązkowe czy dobrowolne"],
-  ["Podstawa wymiaru składek (12 mies.)", "żeby policzyć kwotę"],
+  ["Podstawy wymiaru składek (12 mies.)", "żeby policzyć podstawę i kwotę zasiłku"],
   ["Zwolnienia lekarskie e-ZLA", "m.in. kod „B” — ciąża"],
   ["Zaległości w składkach", "ważne przy działalności gospodarczej"],
   ["Liczba ubezpieczonych u płatnika", "kto wypłaci zasiłek: pracodawca czy ZUS"],
@@ -27,7 +27,7 @@ export default function LoginPage() {
   const [agreed, setAgreed] = useState(false);
 
   return (
-    <FlowShell title="Logowanie" right={<SymulacjaBadge />}>
+    <FlowShell right={<SymulacjaBadge />}>
       {step === "login" ? (
         <>
           <h1 className="kr-h1">Zaloguj przez mObywatel</h1>
