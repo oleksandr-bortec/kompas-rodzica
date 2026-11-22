@@ -25,6 +25,7 @@ export function personaToInput(p: Persona, options?: Partial<PlanOptions>): Plan
     eventDate: p.eventDate,
     children: p.children,
     childAgeYears: p.childAgeYears,
+    zaZyciem: p.zaZyciem,
     parentA: toParent(p.a),
     parentB: p.b ? toParent(p.b) : undefined,
     options: { variant: "81.5", ...options },

@@ -23,7 +23,7 @@ Legenda: ✅ gotowe · 🟡 częściowo (opis w uwagach) · ⬜ brak
 | Imitacja | Gdzie | Status |
 |---|---|---|
 | Logowanie przez mObywatel | [/logowanie](https://kompas-rodzica.vercel.app/logowanie) | ✅ |
-| Dane z systemów ZUS o ubezpieczeniu + wprowadzanie ręczne | [/dane-zus](https://kompas-rodzica.vercel.app/dane-zus), [/dane-reczne](https://kompas-rodzica.vercel.app/dane-reczne) | ✅ |
+| Dane z systemów ZUS o ubezpieczeniu + wprowadzanie ręczne | [/dane-zus](https://kompas-rodzica.vercel.app/dane-zus) („Popraw” → formularz z danymi), [/dane-reczne](https://kompas-rodzica.vercel.app/dane-reczne) | ✅ |
 | Zaświadczenie o niezaleganiu w składkach na dzień powstania prawa | /dane-zus → „Zaświadczenie o niezaleganiu” | ✅ |
 | Przegląd zwolnień e-ZLA | /dane-zus → „Zwolnienia e-ZLA” (kod „B”) | ✅ |
 | Połączenie z PUE/eZUS: pytanie, sprawdzenie danych | /pomoc → „Zapytaj ZUS przez PUE/eZUS” | ✅ |
@@ -35,7 +35,7 @@ Legenda: ✅ gotowe · 🟡 częściowo (opis w uwagach) · ⬜ brak
 | Wymaganie | Gdzie | Status | Uwagi |
 |---|---|---|---|
 | Organizacje wsparcia + linki do zus.pl, MRPiPS, PIP | /pomoc | ✅ | |
-| Panel administracyjny: procenty, maksymalne okresy, nowe funkcje | [/admin](https://kompas-rodzica.vercel.app/admin) (hasło) | 🟡 | Podgląd wszystkich parametrów z datą wejścia w życie; zapis nowej wersji wymaga bazy danych (Vercel ma system plików tylko do odczytu) |
+| Panel administracyjny: procenty, maksymalne okresy, nowe funkcje | [/admin](https://kompas-rodzica.vercel.app/admin) (hasło) | ✅ | Edycja parametrów → nowa wersja z datą wejścia w życie → plany przeliczają się od tej daty; historia wersji. Demo zapisuje w przeglądarce, produkcja: baza danych za `PUT /api/params` |
 | Lista funkcji AI | [/ai](https://kompas-rodzica.vercel.app/ai), `docs/ai-usage.md` | ✅ | |
 | RWD (komputer + telefon) | cała aplikacja | ✅ | Dolna nawigacja na telefonie, boczna na komputerze |
 | REST API | `/api/calculate`, `/api/eligibility`, `/api/params`, `/api/cases/extract` | ✅ | Walidacja Zod |

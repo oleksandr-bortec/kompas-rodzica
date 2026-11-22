@@ -94,6 +94,10 @@ export interface DemoPersona {
   eventDate: string; // termin porodu lub data przyjęcia dziecka
   childAgeYears?: number;
   children: number;
+  /** Zaświadczenie „Za życiem” (from onboarding answers). */
+  zaZyciem?: boolean;
+  /** Premature / hospitalised child (from onboarding answers). */
+  hospital?: boolean;
   a: ParentData;
   b?: ParentData;
   demoPlan: DemoPlan;

@@ -79,6 +79,14 @@ export default function PlanPage() {
         subtitle={
           days !== null && days > 0 ? `Do ${eventWord}: ${days} ${days === 1 ? "dzień" : "dni"} (${formatDate(persona.eventDate)})` : `Data ${eventWord}: ${formatDate(persona.eventDate)}`
         }
+        action={
+          <Link
+            href={persona.id === "custom" ? "/dane-reczne" : "/pytania"}
+            className="shrink-0 whitespace-nowrap rounded-xl border border-kr-border bg-kr-surface px-3 py-2 kr-small font-medium text-kr-primary-dark hover:border-kr-primary/40"
+          >
+            Zmień dane
+          </Link>
+        }
       />
 
       <div className="grid gap-4 lg:grid-cols-[1fr_340px] lg:gap-6">
@@ -99,6 +107,12 @@ export default function PlanPage() {
           </Panel>
 
           {plan.errors.map((e) => <ToneBox key={e} tone="danger" title={e} />)}
+          {persona.id !== "custom" && persona.hospital && (
+            <ToneBox tone="info" title="Wcześniak lub dziecko w szpitalu">
+              Może przysługiwać uzupełniający urlop macierzyński — 1 tydzień za każdy tydzień pobytu dziecka w szpitalu (do 8 albo 15 tygodni).{" "}
+              <Link href="/trudna-sytuacja" className="font-medium text-kr-primary hover:underline">Zobacz, co zrobić</Link>
+            </ToneBox>
+          )}
 
           {(plan.monthly.A !== null || plan.monthly.B !== null) && (
             <div className="grid gap-4 sm:grid-cols-2">

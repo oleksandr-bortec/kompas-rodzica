@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildPlan } from "@/lib/engine";
-import { customPersona, manualEntrySchema, wageMonths, type ManualFields } from "./manual-entry";
+import { customPersona, manualEntrySchema, personaToManualFields, wageMonths, type ManualFields } from "./manual-entry";
+import { PERSONAS } from "./data";
 import { personaToInput } from "./to-engine";
 
 const fields: ManualFields = {
@@ -86,5 +87,14 @@ describe("manual form → PlanInput", () => {
   it("a typed base wins over wages", () => {
     const input = manualEntrySchema.parse({ ...fields, parentA: { ...fields.parentA, wages: Array(12).fill("9000") } });
     expect(input.parentA.base).toBe(5000.5);
+  });
+
+  it.each(PERSONAS.map((p) => [p.id, p] as const))("„Popraw” prefill reproduces the same plan for %s", (_id, persona) => {
+    const fromForm = buildPlan(manualEntrySchema.parse(personaToManualFields(persona)));
+    const original = buildPlan(personaToInput(persona));
+    expect(fromForm.eligibility.A.eligible).toBe(original.eligibility.A.eligible);
+    expect(fromForm.payer).toEqual(original.payer);
+    expect(fromForm.monthly).toEqual(original.monthly);
+    expect(fromForm.segments.map((s) => [s.kind, s.weeks])).toEqual(original.segments.map((s) => [s.kind, s.weeks]));
   });
 });
