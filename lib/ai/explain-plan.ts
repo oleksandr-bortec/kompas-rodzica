@@ -58,30 +58,39 @@ export async function explainPlanWithAI(plan: Plan, placeholderKeys: string[], l
   const placeholders = placeholderKeys.map((k) => `{${k}} — ${PLACEHOLDER_MEANING[k] ?? k}`).join("\n");
 
   const client = new Anthropic();
-  const response = await client.messages.parse({
-    model: EXPLAIN_MODEL,
-    max_tokens: 4000,
-    output_config: { effort: "low", format: zodOutputFormat(OutputSchema) },
-    system:
-      "Jesteś spokojnym, życzliwym doradcą, który tłumaczy przyszłym rodzicom ich plan zasiłków ZUS prostym językiem. " +
-      "Nie wydajesz decyzji i nie liczysz kwot. Liczby, daty i procenty wolno Ci zapisywać WYŁĄCZNIE jako podane placeholdery w nawiasach klamrowych — nigdy cyframi. " +
-      "Nie wymyślaj faktów spoza podanych danych.",
-    messages: [
-      {
-        role: "user",
-        content:
-          `Napisz wyjaśnienie planu ${LANG_NAME[lang]}: 3–5 krótkich akapitów, bez nagłówków i list, bez żargonu (jeśli używasz polskiego terminu ZUS w innym języku, dodaj go w nawiasie).\n` +
-          `Ostatni akapit: jedno zdanie, że to informacja, a nie decyzja ZUS.\n\n` +
-          `Fakty (bez liczb):\n${JSON.stringify(facts, null, 2)}\n\n` +
-          `Dostępne placeholdery (używaj tylko tych, każdą liczbę/datę zapisuj placeholderem):\n${placeholders}`,
-      },
-    ],
-  });
+  const userPrompt =
+    `Napisz wyjaśnienie planu ${LANG_NAME[lang]}: 3–5 krótkich akapitów, bez nagłówków i list, bez żargonu (jeśli używasz polskiego terminu ZUS w innym języku, dodaj go w nawiasie).\n` +
+    `Ostatni akapit: jedno zdanie, że to informacja, a nie decyzja ZUS.\n` +
+    `Nie pisz żadnej cyfry — także w terminach i nazwach (np. zamiast „21 dni” napisz „do {data_wniosku}”, zamiast „81,5%” napisz „{procent_A}”).\n\n` +
+    `Fakty (bez liczb):\n${JSON.stringify(facts, null, 2)}\n\n` +
+    `Dostępne placeholdery (używaj tylko tych, każdą liczbę/datę zapisuj placeholderem):\n${placeholders}`;
 
-  if (response.stop_reason === "refusal" || !response.parsed_output) throw new Error("Brak poprawnej odpowiedzi modelu.");
-  const paragraphs = response.parsed_output.paragraphs.map((p) => p.trim()).filter(Boolean);
-  if (paragraphs.length === 0 || !paragraphs.every((p) => isSafeText(p, placeholderKeys))) {
-    throw new Error("Odpowiedź AI zawierała własne liczby lub nieznane pola — użyto wyjaśnienia bez AI.");
+  // Second try: tell the model exactly which fragments broke the no-digits rule.
+  let feedback = "";
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const response = await client.messages.parse({
+      model: EXPLAIN_MODEL,
+      max_tokens: 4000,
+      output_config: { effort: "low", format: zodOutputFormat(OutputSchema) },
+      system:
+        "Jesteś spokojnym, życzliwym doradcą, który tłumaczy przyszłym rodzicom ich plan zasiłków ZUS prostym językiem. " +
+        "Nie wydajesz decyzji i nie liczysz kwot. Liczby, daty i procenty wolno Ci zapisywać WYŁĄCZNIE jako podane placeholdery w nawiasach klamrowych — nigdy cyframi. " +
+        "Nie wymyślaj faktów spoza podanych danych.",
+      messages: [{ role: "user", content: userPrompt + feedback }],
+    });
+    if (response.stop_reason === "refusal" || !response.parsed_output) throw new Error("Brak poprawnej odpowiedzi modelu.");
+    const paragraphs = response.parsed_output.paragraphs.map((p) => p.trim()).filter(Boolean);
+    const bad = paragraphs.flatMap((p) => unsafeFragments(p, placeholderKeys));
+    if (paragraphs.length > 0 && bad.length === 0) return paragraphs;
+    feedback = `\n\nUWAGA: poprzednia wersja była niepoprawna — zawierała: ${bad.slice(0, 6).map((b) => `„${b}”`).join(", ")}. Napisz całość od nowa bez tych fragmentów: bez cyfr i tylko z podanymi placeholderami.`;
   }
-  return paragraphs;
+  throw new Error("Odpowiedź AI zawierała własne liczby lub nieznane pola — użyto wyjaśnienia bez AI.");
+}
+
+/** Fragments that break the rule: words with digits outside placeholders, unknown placeholders. */
+function unsafeFragments(text: string, allowed: string[]): string[] {
+  if (isSafeText(text, allowed)) return [];
+  const unknown = [...text.matchAll(/\{([a-z_AB]+)\}/g)].map((m) => m[1]).filter((k) => !allowed.includes(k)).map((k) => `{${k}}`);
+  const digits = text.replace(/\{[a-z_AB]+\}/g, " ").match(/\S*\d\S*/g) ?? [];
+  return [...unknown, ...digits];
 }
