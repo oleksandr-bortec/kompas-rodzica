@@ -1,7 +1,9 @@
 "use client";
 
-import { BookOpen, Sparkles } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { usePlan } from "@/components/kr/use-plan";
+import { ExplainCard } from "@/components/kr/explain-card";
+import { personaToInput } from "@/lib/personas/to-engine";
 import { PageHeader, Panel, SourceTag } from "@/components/kr/ui";
 import { formatPLN } from "@/lib/format";
 
@@ -18,6 +20,10 @@ export default function WhyPage() {
   return (
     <div className="max-w-2xl">
       <PageHeader title="Dlaczego tyle?" subtitle="Każdy krok silnika reguł z podstawą prawną" back="/plan" />
+
+      <div className="mb-4">
+        <ExplainCard plan={plan} input={personaToInput(persona)} names={{ A: persona.a.name, B: persona.b?.name }} />
+      </div>
 
       {base !== null && main && main.monthlyAmount !== null && (
         <Panel className="mb-4">
@@ -44,7 +50,12 @@ export default function WhyPage() {
               </span>
               {i < plan.trace.length - 1 && <span className="absolute left-4 top-8 h-full w-px bg-kr-border" aria-hidden />}
               <div className="flex-1">
-                <p className="font-semibold">{s.label}</p>
+                <p className="font-semibold">
+                  {s.label}
+                  {persona.b && /-(A|B)$/.test(s.id) && (
+                    <span className="ml-1 font-normal text-kr-text-2">· {s.id.endsWith("-B") ? persona.b.name : persona.a.name}</span>
+                  )}
+                </p>
                 <p className="kr-small text-kr-text-2">{s.detail}</p>
                 <p className="mt-1 inline-flex items-center gap-1 kr-caption font-normal text-kr-text-2">
                   <BookOpen className="size-3.5" aria-hidden /> {s.rule}
@@ -55,15 +66,6 @@ export default function WhyPage() {
         </ol>
       </Panel>
 
-      <Panel className="mt-4 bg-kr-partner-tint/40">
-        <div className="flex items-center gap-2 text-kr-partner">
-          <Sparkles className="size-4" aria-hidden />
-          <p className="kr-caption">Wyjaśnienie AI — wkrótce</p>
-        </div>
-        <p className="mt-2 kr-small">
-          AI opisze te kroki prostym językiem. Liczby wstawi silnik reguł — AI ich nie zmienia.
-        </p>
-      </Panel>
     </div>
   );
 }

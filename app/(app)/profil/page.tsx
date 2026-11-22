@@ -67,7 +67,12 @@ export default function ProfilePage() {
                 </button>
               ))}
             </div>
-            {lang === "uk" && <p className="mt-2 kr-small text-kr-text-2">Wersja ukraińska — wkrótce.</p>}
+            {lang !== "pl" && (
+              <p className="mt-2 kr-small text-kr-text-2">
+                Interfejs jest po polsku. Wyjaśnienie Twojego planu po ukraińsku i angielsku znajdziesz na ekranie{" "}
+                <Link href="/plan/dlaczego" className="font-medium text-kr-primary hover:underline">„Dlaczego tyle?” → „Wyjaśnij mi to”</Link>.
+              </p>
+            )}
           </Panel>
           <Panel>
             <h2 className="kr-card-title">Dostępność</h2>

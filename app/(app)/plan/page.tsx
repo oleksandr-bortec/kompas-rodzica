@@ -97,11 +97,12 @@ export default function PlanPage() {
               <div>
                 <h2 className="kr-h2">{verdict.title}</h2>
                 <p className="mt-1 text-kr-text-2">{verdict.detail}</p>
-                {plan.eligibility.A.eligible && (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <PayerChip payer={plan.payer.A} />
-                  </div>
-                )}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {plan.eligibility.A.eligible && <PayerChip payer={plan.payer.A} />}
+                  <Link href="/plan/dlaczego" className="inline-flex items-center gap-1 rounded-full bg-kr-partner-tint px-2.5 py-1 kr-small font-medium text-kr-partner hover:underline">
+                    Wyjaśnij mi to · PL / UA / EN
+                  </Link>
+                </div>
               </div>
             </div>
           </Panel>
