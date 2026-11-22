@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   const plan = buildPlan(input);
   const keys = Object.keys(buildVariables(plan, input.eventDate, names, lang));
   try {
-    const paragraphs = await explainPlanWithAI(plan, keys, lang, input.event);
+    const paragraphs = await explainPlanWithAI(plan, keys, lang, input.event, input.eventDate);
     return NextResponse.json({ paragraphs, source: "ai" });
   } catch (e) {
     const fallback = true;
