@@ -1,6 +1,6 @@
 # Mapa wymagań wyzwania ZUS → Kompas Rodzica
 
-Demo: **https://kompas-rodzica.vercel.app** · Kod: https://github.com/oleksandr-bortec/kompas-rodzica
+Demo: **https://kompas-rodzica.vercel.app** · Film: https://youtu.be/pdhRhq2WKN0 · Kod: https://github.com/oleksandr-bortec/kompas-rodzica
 
 Legenda: ✅ gotowe · 🟡 częściowo (opis w uwagach) · ⬜ brak
 
