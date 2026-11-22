@@ -1,7 +1,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { AI_MODEL } from "./model";
-import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
+import { z } from "zod";
 import { CaseExtractionSchema, type CaseExtraction } from "./case-schema";
 
 /**
@@ -32,16 +32,18 @@ export async function extractCase(pdf: Buffer): Promise<CaseExtraction> {
     throw new ExtractionUnavailableError("Brak klucza ANTHROPIC_API_KEY — odczyt dokumentów przez AI jest wyłączony.");
   }
   const client = new Anthropic();
-  const response = await client.messages.parse({
+  // Plain JSON instead of structured outputs: the schema has ~30 nullable fields, more union-typed
+  // parameters than structured outputs accept (400). Zod validates the answer below.
+  const response = await client.messages.create({
     model: EXTRACTION_MODEL,
     max_tokens: 16000,
-    output_config: { effort: "high", format: zodOutputFormat(CaseExtractionSchema) },
+    output_config: { effort: "high" },
     messages: [
       {
         role: "user",
         content: [
           { type: "document", source: { type: "base64", media_type: "application/pdf", data: pdf.toString("base64") } },
-          { type: "text", text: INSTRUCTIONS },
+          { type: "text", text: `${INSTRUCTIONS}\n\nOdpowiedz wyłącznie jednym obiektem JSON zgodnym z tym JSON Schema (bez komentarzy i bez markdown):\n${SCHEMA_TEXT}` },
         ],
       },
     ],
@@ -50,8 +52,24 @@ export async function extractCase(pdf: Buffer): Promise<CaseExtraction> {
   if (response.stop_reason === "refusal") {
     throw new Error("Model odmówił odczytu dokumentu.");
   }
-  if (!response.parsed_output) {
+  const text = response.content.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
+  const parsed = CaseExtractionSchema.safeParse(parseJsonObject(text));
+  if (!parsed.success) {
     throw new Error(`Nie udało się odczytać danych (stop_reason: ${response.stop_reason}).`);
   }
-  return response.parsed_output;
+  return parsed.data;
+}
+
+const SCHEMA_TEXT = JSON.stringify(z.toJSONSchema(CaseExtractionSchema));
+
+/** First {...} object in the model's text (tolerates ```json fences or a sentence around it). */
+function parseJsonObject(text: string): unknown {
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start < 0 || end <= start) return null;
+  try {
+    return JSON.parse(text.slice(start, end + 1));
+  } catch {
+    return null;
+  }
 }
