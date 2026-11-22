@@ -46,4 +46,12 @@ Legenda: ✅ gotowe · 🟡 częściowo (opis w uwagach) · ⬜ brak
 - Silnik reguł: `lib/engine/` — czysty TypeScript, **bez AI**, każdy krok z odwołaniem do przepisu (trace na ekranie „Dlaczego tyle?”).
 - Testy: `npm test` (Vitest) — reguły, kwoty, terminy, dokumenty, 4 persony.
 - Parametry: `lib/engine/params/2026-01-01.json` z datą wejścia w życie; źródło każdej wartości opisane w pliku.
-- Przykładowe sprawy ZUS testowane lokalnie poza repozytorium (zakaz publikacji).
+- **Weryfikacja na przykładowych sprawach ZUS** (testy lokalne, poza repozytorium — zakaz publikacji spraw):
+  9 spraw z 2024–2026 (przyznania i odmowy). **Werdykt silnika zgodny z decyzją ZUS w 7 z 7 spraw**, w których
+  rozstrzygająca reguła jest w silniku (brak ubezpieczenia w dniu porodu, zlecenie bez chorobowego, zadłużenie JDG
+  > 1% płacy minimalnej, przedłużenie umowy do dnia porodu, płatnik ≤ 20 / po ustaniu ubezpieczenia / JDG → ZUS).
+  W 2 sprawach rozstrzygały okoliczności oceniane przez ZUS w postępowaniu (umowa zawarta dla pozoru, wyrejestrowanie
+  z dobrowolnego ubezpieczenia po zasiłku) — silnik nie wydaje wtedy werdyktu automatycznie, ale pokazuje ostrzeżenie o tym ryzyku.
+- Wnioski ze spraw wpisane do silnika: płatnik po ustaniu ubezpieczenia (art. 61 ust. 1 pkt 2 lit. d), parametry 2025
+  (płaca minimalna 4 666 zł — potwierdzona w decyzji ZUS progiem zadłużenia 46,66 zł), ostrzeżenia o umowie zawartej
+  w czasie ciąży i o ponownym zgłoszeniu do dobrowolnego ubezpieczenia.

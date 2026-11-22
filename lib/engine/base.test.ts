@@ -48,3 +48,9 @@ describe("podstawa wymiaru (Załącznik ZUS)", () => {
   });
   it("no months → null (no guessing)", () => expect(computeBase({ employee: true, months: [] }, params).base).toBeNull());
 });
+
+describe("parameters by year", () => {
+  it("2025: minimum base 4 666 zł − 13,71% = 4 026,29 zł", () => expect(minimumBase(getParams("2025-09-26"))).toBe(4026.29));
+  it("2026: minimum base 4 806 zł − 13,71% = 4 147,10 zł", () => expect(minimumBase(getParams("2026-03-01"))).toBe(4147.1));
+  it("2025: debt threshold 1% of 4 666 zł = 46,66 zł", () => expect(Math.round(getParams("2025-06-01").base.minimumWage) / 100).toBe(46.66));
+});

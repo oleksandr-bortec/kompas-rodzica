@@ -284,6 +284,31 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
       deadlines.sort((a, b) => a.date.localeCompare(b.date));
     }
   }
+  // Insurance title started during pregnancy (est. conception = due date − 280 days)
+  const conception = addDays(input.eventDate, -280);
+  if (isBirth && pA && pA.from > conception) {
+    risks.push({
+      id: "insurance-started-in-pregnancy",
+      severity: "warning",
+      title: pA.title === "jdg" ? "Działalność rozpoczęta w czasie ciąży" : "Umowa zawarta w czasie ciąży",
+      why: "ZUS może sprawdzić, czy umowa lub działalność nie zostały zawarte tylko dla uzyskania zasiłku (dla pozoru). Jeśli tak uzna, odmawia prawa do zasiłku.",
+      todo: "Zachowaj dowody faktycznej pracy: zakres obowiązków, ewidencję czasu pracy, wynagrodzenie adekwatne do pracy (przy działalności — faktury, klientów).",
+      rule: "Ryzyka z opisu wyzwania ZUS: fikcyjna umowa lub działalność dla ubezpieczenia",
+      parent: "A",
+    });
+  }
+  // Voluntary sickness insurance ends automatically when maternity benefit starts
+  if (eligA.eligible && pA?.sickness === "dobrowolne") {
+    risks.push({
+      id: "voluntary-reregister",
+      severity: "info",
+      title: "Po zasiłku zgłoś się ponownie do ubezpieczenia chorobowego",
+      why: "Osoby ubezpieczone dobrowolnie (działalność, zlecenie) są automatycznie wyrejestrowane z ubezpieczenia chorobowego, gdy zaczynają pobierać zasiłek macierzyński. Bez ponownego zgłoszenia kolejne świadczenia, np. wniosek o dalszą część urlopu złożony później, mogą zostać odrzucone.",
+      todo: "Gdy skończysz pobierać zasiłek macierzyński, zgłoś się ponownie do dobrowolnego ubezpieczenia chorobowego w ZUS.",
+      rule: "Poradnik dla rodziców ZUS 2026 — ważne informacje uzupełniające",
+      parent: "A",
+    });
+  }
   if (input.parentA.baseIncreasedInPregnancy) {
     risks.push({
       id: "base-increase",

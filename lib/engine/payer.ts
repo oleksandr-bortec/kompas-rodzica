@@ -1,10 +1,11 @@
 /**
  * Kto wypłaca zasiłek: płatnik, który zgłasza do ubezpieczenia chorobowego
  * ponad 20 ubezpieczonych (stan na 30 listopada roku poprzedniego); inaczej ZUS.
- * Osoba prowadząca działalność (JDG) — ZUS.
+ * Osoba prowadząca działalność (JDG) — ZUS. Za okres po ustaniu ubezpieczenia — ZUS (art. 61 ust. 1 pkt 2 lit. d).
  */
 import type { Params } from "./params";
 import { periodOn } from "./eligibility";
+import { dateText } from "./dates";
 import type { InsurancePeriod, Payer, TraceStep } from "./types";
 
 export function determinePayer(
@@ -23,6 +24,10 @@ export function determinePayer(
   } else if (p.title === "jdg") {
     payer = "ZUS";
     detail = "Działalność gospodarcza — zasiłek wypłaca ZUS.";
+  } else if (p.to !== null && p.to <= date) {
+    // e.g. fixed-term contract extended until the day of birth (art. 177 § 3 KP)
+    payer = "ZUS";
+    detail = `Ubezpieczenie kończy się ${dateText(p.to)} — za okres po ustaniu ubezpieczenia zasiłek wypłaca ZUS (art. 61 ust. 1 pkt 2 lit. d).`;
   } else if (p.payerInsuredCount === undefined) {
     payer = "nieznany";
     detail = "Brak liczby ubezpieczonych u płatnika — nie wiadomo, kto wypłaca.";
