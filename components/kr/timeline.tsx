@@ -74,7 +74,7 @@ export function Timeline({
                     <span className={cn("whitespace-nowrap kr-caption", light ? (row.parent === "A" ? "text-kr-primary-dark" : "text-[#3E41A0]") : "text-white")}>
                       {(s.weeks / total) * 100 >= 45
                         ? `${(SEGMENT_LABEL[s.kind] ?? s.kind).replace("Urlop ", "")} · ${pct(s.percent)}`
-                        : (s.weeks / total) * 100 >= 15
+                        : (s.weeks / total) * 100 >= 12
                           ? pct(s.percent)
                           : ""}
                     </span>
