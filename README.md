@@ -56,6 +56,10 @@ Wymagany Node.js ≥ 20.9 (zalecany 22, patrz `.nvmrc`).
 | `GET` | `/api/params?date=RRRR-MM-DD` | parametry obowiązujące w danym dniu |
 | `POST` | `/api/cases/extract` | PDF akt (multipart, pole `file`) → dane odczytane przez AI do potwierdzenia (wymaga `ANTHROPIC_API_KEY`) |
 
+## Biblioteki i licencje
+
+Wszystkie rozwiązania zewnętrzne (biblioteki, fonty, usługi) i ich licencje: [docs/biblioteki.md](docs/biblioteki.md).
+
 ## Zasady dla zespołu i agentów AI
 
 Przeczytaj [AGENTS.md](AGENTS.md). Najważniejsze: każdy pracuje na swojej gałęzi i robi PR do

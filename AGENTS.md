@@ -42,8 +42,9 @@ produkt > idealny kod. Zamrożenie funkcji o 07:00.
 ## Stos
 
 Next.js 15 (App Router) + TypeScript · Tailwind v4 · shadcn/ui (radix) · lucide-react ·
-React Hook Form + Zod · REST przez Route Handlers (`app/api/*`) · Vercel AI SDK (`ai`) ·
-pdf-parse · Recharts · Vitest · deploy na Vercel.
+React Hook Form + Zod · REST przez Route Handlers (`app/api/*`) · Anthropic SDK
+(`@anthropic-ai/sdk`, odczyt akt) · pdf-lib (wzory wniosków) · Recharts · Vitest · deploy na Vercel.
+Lista bibliotek i licencji: `docs/biblioteki.md`.
 
 ## Struktura
 
