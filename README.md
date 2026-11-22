@@ -54,7 +54,11 @@ Wymagany Node.js ≥ 20.9 (zalecany 22, patrz `.nvmrc`).
 | `POST` | `/api/calculate` | pełny plan: prawo, płatnik, okresy, kwoty, terminy, ryzyka, trace |
 | `POST` | `/api/eligibility` | tylko prawo do zasiłku i kto wypłaca |
 | `GET` | `/api/params?date=RRRR-MM-DD` | parametry obowiązujące w danym dniu |
-| `POST` | `/api/cases/extract` | PDF akt (multipart, pole `file`) → dane odczytane przez AI do potwierdzenia (wymaga `ANTHROPIC_API_KEY`) |
+| `POST` | `/api/cases/extract` | PDF akt (multipart, pole `file`, do 4 MB) → dane odczytane przez AI do potwierdzenia (wymaga `ANTHROPIC_API_KEY`) |
+| `POST` | `/api/explain` | `{ input, lang: pl\|uk\|en, names }` → akapity wyjaśnienia z `{placeholderami}` zamiast liczb (bez klucza: 503 i wyjaśnienie z szablonu) |
+| `GET` / `POST` / `DELETE` | `/api/admin/login` | stan sesji / logowanie hasłem `ADMIN_PASSWORD` / wylogowanie (cookie HttpOnly) |
+
+Błędne dane wejściowe → `400` z opisem po polsku (np. `GET /api/params?date=abc`).
 
 ## Biblioteki i licencje
 
