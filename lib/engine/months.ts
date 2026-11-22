@@ -11,6 +11,9 @@ export interface MonthAmount {
   month: string; // YYYY-MM
   a: number;
   b: number;
+  /** Payment % of the segment active mid-month (0 = none). */
+  rateA: number;
+  rateB: number;
 }
 
 export function planMonths(plan: Plan, fromDate: string, months = 14): MonthAmount[] {
@@ -21,6 +24,8 @@ export function planMonths(plan: Plan, fromDate: string, months = 14): MonthAmou
       const segs = plan.segments.filter((s) => s.parent === parent && s.start <= mid && s.end >= mid);
       return segs.reduce((sum, s) => sum + (s.monthlyAmount ?? 0), 0);
     };
-    return { month: mid.slice(0, 7), a: amount("A"), b: amount("B") };
+    const rate = (parent: "A" | "B") =>
+      Math.max(0, ...plan.segments.filter((s) => s.parent === parent && s.start <= mid && s.end >= mid).map((s) => s.ratePercent));
+    return { month: mid.slice(0, 7), a: amount("A"), b: amount("B"), rateA: rate("A"), rateB: rate("B") };
   });
 }
