@@ -12,6 +12,10 @@ jak podzielić urlopy, jakie dokumenty złożyć i gdzie — oraz na co uważać
 
 ## Demo
 
+- **Aplikacja:** https://kompas-rodzica.vercel.app
+- **Film (2:45):** https://youtu.be/pdhRhq2WKN0
+- **Kod:** https://github.com/oleksandr-bortec/kompas-rodzica
+
 Wersja demonstracyjna jest publikowana automatycznie na Vercel z gałęzi `main`
 (każdy PR dostaje własny podgląd). Dane osób w demo są fikcyjne, a imitacje systemów
 (mObywatel, ZUS, e-ZLA, PUE/eZUS) mają oznaczenie „Symulacja”.
