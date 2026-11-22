@@ -64,6 +64,9 @@ function ParentFields({ who }: { who: "parentA" | "parentB" }) {
       <Field label="Miesięczna podstawa wymiaru zasiłku w zł (opcjonalnie)" error={err?.base?.message}>
         <input inputMode="decimal" {...register(`${who}.base`)} className={control} />
       </Field>
+      <Field label="Zadłużenie w składkach w zł (opcjonalnie — ważne przy działalności)" error={err?.contributionDebt?.message}>
+        <input inputMode="decimal" {...register(`${who}.contributionDebt`)} className={control} />
+      </Field>
       <details className="rounded-xl bg-muted/60 p-3">
         <summary className="cursor-pointer font-medium">Nie znasz podstawy? Wpisz wynagrodzenie z 12 miesięcy</summary>
         <p className="mt-2 kr-small text-kr-text-2">
@@ -135,13 +138,19 @@ function ManualForm({ saved }: { saved: ManualFields | null }) {
 }
 
 export default function ManualEntryPage() {
-  const { manualFields } = usePersona();
+  const { manualFields, draftFields } = usePersona();
+  const initial = draftFields ?? manualFields;
   return (
     <FlowShell title="Wprowadź dane">
       <h1 className="kr-h1">Wprowadź dane samodzielnie</h1>
       <p className="my-2 text-kr-text-2">Na podstawie tych danych obliczymy Twój plan. Zapiszemy je w tej przeglądarce.</p>
       <div><SourceTag source="user" /></div>
-      <ManualForm key={manualFields ? "saved" : "new"} saved={manualFields} />
+      {draftFields && (
+        <p className="mt-3 rounded-xl bg-kr-tint px-3 py-2 kr-small text-kr-primary-dark">
+          Uzupełniliśmy formularz danymi z ZUS — popraw to, co się nie zgadza, i zapisz.
+        </p>
+      )}
+      <ManualForm key={draftFields ? "draft" : manualFields ? "saved" : "new"} saved={initial} />
     </FlowShell>
   );
 }

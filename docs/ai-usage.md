@@ -24,3 +24,4 @@ AI **nie liczy** kwot, okresów ani terminów i nie wydaje decyzji.
 | 2026-11-21 | Claude Code | docs/wymagania.md, prezentacja.md, scenariusz-wideo.md; strona „W ciąży” (wymaganie a); adopcja w kalkulatorze; kwota przy pracy na ½ etatu (art. 31 ust. 4a); wynagrodzenia z 12 mies. w formularzu ręcznym; ikony PWA; poprawki dostępności |
 | 2026-11-21 | Claude Code | Polerowanie: nowy ekran powitalny (podgląd planu z silnika, „Jak to działa”), strona 404 po polsku, tytuły kart, oś czasu 81,5%, krótszy chip płatnika, „Następny krok” z imieniem, bez migania persony |
 | 2026-11-22 | Claude Code | docs/biblioteki.md (biblioteki, fonty, usługi, licencje); usunięte nieużywane zależności ai i pdf-parse |
+| 2026-11-22 | Claude Code | Bez zaślepek: odpowiedzi z „Kilka pytań” zmieniają plan; „Popraw” otwiera formularz z danymi z ZUS (+ zadłużenie); panel admina zapisuje wersje parametrów z datą wejścia w życie i plany się przeliczają |

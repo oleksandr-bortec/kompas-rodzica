@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { FlowShell } from "@/components/kr/flow-shell";
 import { usePersona } from "@/components/kr/persona-provider";
 import { cn } from "@/lib/utils";
+import { KIDS_OPTIONS, kidsFromLabel, labelFromKids } from "@/lib/personas/answers";
 
 function Choice({ options, value, onChange }: { options: string[]; value: string; onChange: (v: string) => void }) {
   return (
@@ -35,12 +36,38 @@ function Choice({ options, value, onChange }: { options: string[]; value: string
 /** Ekran 4 — Kilka pytań (onboarding, jedno pytanie na ekran). */
 export default function QuestionsPage() {
   const router = useRouter();
-  const { persona } = usePersona();
+  const { persona, basePersona, answers, saveAnswers } = usePersona();
   const [i, setI] = useState(0);
+  // Start from previous answers, otherwise from (simulated) ZUS data.
   const [date, setDate] = useState(persona.eventDate);
-  const [kids, setKids] = useState("Jedno");
-  const [partner, setPartner] = useState(persona.b ? "Tak, też chce korzystać z urlopu" : "Nie / nie wiem");
-  const [special, setSpecial] = useState("Nie");
+  const [kids, setKids] = useState<string>(labelFromKids(persona.children));
+  const [partner, setPartner] = useState(
+    answers?.partner === false || !basePersona.b ? "Nie / nie wiem" : "Tak, też chce korzystać z urlopu",
+  );
+  const [special, setSpecial] = useState(
+    answers?.zaZyciem ? "Zaświadczenie „Za życiem”" : answers?.hospital ? "Dziecko w szpitalu / wcześniak" : "Nie",
+  );
+  const [dateError, setDateError] = useState<string | null>(null);
+
+  function finish() {
+    saveAnswers({
+      eventDate: date,
+      children: kidsFromLabel(kids),
+      partner: partner.startsWith("Tak"),
+      zaZyciem: special === "Zaświadczenie „Za życiem”",
+      hospital: special === "Dziecko w szpitalu / wcześniak",
+    });
+    router.push("/plan");
+  }
+
+  function next() {
+    if (i === 0 && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      setDateError("Podaj datę — wystarczy przybliżona.");
+      return;
+    }
+    if (last) finish();
+    else setI(i + 1);
+  }
 
   const questions = [
     {
@@ -49,14 +76,15 @@ export default function QuestionsPage() {
       body: (
         <div className="grid gap-2">
           <Label htmlFor="date">Data</Label>
-          <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-12" />
+          <Input id="date" type="date" value={date} onChange={(e) => { setDate(e.target.value); setDateError(null); }} className="h-12" aria-invalid={!!dateError} />
+          {dateError && <p role="alert" className="kr-small text-kr-danger">{dateError}</p>}
         </div>
       ),
     },
     {
       title: "Ile dzieci się spodziewasz?",
       hint: "Od liczby dzieci zależy długość urlopu macierzyńskiego.",
-      body: <Choice options={["Jedno", "Bliźnięta", "Troje lub więcej", "Nie wiem"]} value={kids} onChange={setKids} />,
+      body: <Choice options={[...KIDS_OPTIONS]} value={kids} onChange={setKids} />,
     },
     {
       title: "Czy drugi rodzic też będzie korzystać z urlopu?",
@@ -99,7 +127,7 @@ export default function QuestionsPage() {
         <Button
           size="lg"
           className="h-14 flex-1 rounded-2xl text-base"
-          onClick={() => (last ? router.push("/plan") : setI(i + 1))}
+          onClick={next}
         >
           {last ? "Pokaż mój plan" : "Dalej"}
         </Button>

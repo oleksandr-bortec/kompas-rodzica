@@ -1,17 +1,30 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FlowShell } from "@/components/kr/flow-shell";
 import { usePersona } from "@/components/kr/persona-provider";
+import { personaToManualFields } from "@/lib/personas/manual-entry";
 import { Field, Panel, SymulacjaBadge, ToneBox } from "@/components/kr/ui";
 import { formatDateShort, formatPLN, formatPLN2, TITLE_LABEL } from "@/lib/format";
 import type { ParentData } from "@/lib/personas/types";
 
+/** „Popraw” — opens the manual form prefilled with this (simulated) ZUS data. */
 function EditBtn() {
+  const router = useRouter();
+  const { persona, setDraftFields } = usePersona();
   return (
-    <Button variant="ghost" size="sm" className="text-kr-primary-dark">
+    <Button
+      variant="ghost"
+      size="sm"
+      className="text-kr-primary-dark"
+      onClick={() => {
+        if (persona.id !== "custom") setDraftFields(personaToManualFields(persona));
+        router.push("/dane-reczne");
+      }}
+    >
       <Pencil aria-hidden /> Popraw
     </Button>
   );

@@ -33,12 +33,12 @@ export function verdictFor(plan: Plan, persona: Persona): Verdict {
 export type PlanOverrides = Partial<Pick<PlanInput, "event" | "children" | "zaZyciem" | "childAgeYears">>;
 
 export function usePlan(options?: Partial<PlanOptions>, overrides?: PlanOverrides) {
-  const { persona } = usePersona();
+  const { persona, paramsRevision } = usePersona();
   const key = JSON.stringify([options ?? {}, overrides ?? {}]);
   const plan = useMemo(
     () => buildPlan({ ...personaToInput(persona, options), ...overrides }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [persona, key],
+    [persona, key, paramsRevision],
   );
   return { persona, plan, verdict: verdictFor(plan, persona) };
 }
