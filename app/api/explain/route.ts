@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     if (e instanceof ExplainUnavailableError) return NextResponse.json({ error: e.message, fallback }, { status: 503 });
     console.error("explain: AI explanation failed, template used", e instanceof Error ? e.message : e);
     // Do not pass raw upstream errors to the browser.
-    const error = e instanceof Anthropic.APIError ? `AI jest chwilowo niedostępne (kod ${e.status ?? "?"}).` : e instanceof Error ? e.message : "Błąd";
+    const error = e instanceof Anthropic.APIError ? `AI jest chwilowo niedostępne${e.status ? ` (kod ${e.status})` : ""}.` : e instanceof Error ? e.message : "Błąd";
     return NextResponse.json({ error, fallback }, { status: 502 });
   }
 }

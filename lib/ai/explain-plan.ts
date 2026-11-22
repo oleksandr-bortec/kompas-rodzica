@@ -1,6 +1,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
-import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
+import { AI_MODEL } from "./model";
+import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { z } from "zod";
 import type { Plan } from "@/lib/engine";
 import { isSafeText } from "@/lib/explain/fill";
@@ -13,7 +14,7 @@ import type { Lang } from "@/lib/explain/variables";
  * list of placeholders. It must write numbers as {placeholders}; any digit of its own makes
  * the text invalid. The browser fills placeholders with values from the rules engine.
  */
-export const EXPLAIN_MODEL = "claude-opus-5-5";
+export const EXPLAIN_MODEL = AI_MODEL;
 
 const OutputSchema = z.object({ paragraphs: z.array(z.string()).max(6) });
 
@@ -57,12 +58,10 @@ export async function explainPlanWithAI(plan: Plan, placeholderKeys: string[], l
   const placeholders = placeholderKeys.map((k) => `{${k}} — ${PLACEHOLDER_MEANING[k] ?? k}`).join("\n");
 
   const client = new Anthropic();
-  const response = await client.beta.messages.parse({
+  const response = await client.messages.parse({
     model: EXPLAIN_MODEL,
     max_tokens: 4000,
-    betas: ["server-side-fallback-2026-07-01"],
-    fallbacks: "default",
-    output_config: { effort: "low", format: betaZodOutputFormat(OutputSchema) },
+    output_config: { effort: "low", format: zodOutputFormat(OutputSchema) },
     system:
       "Jesteś spokojnym, życzliwym doradcą, który tłumaczy przyszłym rodzicom ich plan zasiłków ZUS prostym językiem. " +
       "Nie wydajesz decyzji i nie liczysz kwot. Liczby, daty i procenty wolno Ci zapisywać WYŁĄCZNIE jako podane placeholdery w nawiasach klamrowych — nigdy cyframi. " +

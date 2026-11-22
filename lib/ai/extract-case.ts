@@ -1,6 +1,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
-import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
+import { AI_MODEL } from "./model";
+import { zodOutputFormat } from "@anthropic-ai/sdk/helpers/zod";
 import { CaseExtractionSchema, type CaseExtraction } from "./case-schema";
 
 /**
@@ -8,7 +9,7 @@ import { CaseExtractionSchema, type CaseExtraction } from "./case-schema";
  * validated by Zod. The AI never computes amounts, periods or verdicts — the rules
  * engine does that after a human confirms the fields.
  */
-export const EXTRACTION_MODEL = "claude-opus-5-5";
+export const EXTRACTION_MODEL = AI_MODEL;
 
 const INSTRUCTIONS = `Jesteś asystentem, który czyta akta spraw zasiłkowych ZUS (skany formularzy: Z-3, Z-3a, Z-3b, ZAM, ZUR, ZAO, ZAS-53, zaświadczenia, decyzje, adnotacje odręczne).
 
@@ -31,13 +32,10 @@ export async function extractCase(pdf: Buffer): Promise<CaseExtraction> {
     throw new ExtractionUnavailableError("Brak klucza ANTHROPIC_API_KEY — odczyt dokumentów przez AI jest wyłączony.");
   }
   const client = new Anthropic();
-  const response = await client.beta.messages.parse({
+  const response = await client.messages.parse({
     model: EXTRACTION_MODEL,
     max_tokens: 16000,
-    // If the model declines, the API retries on a fallback model in the same call.
-    betas: ["server-side-fallback-2026-07-01"],
-    fallbacks: "default",
-    output_config: { effort: "high", format: betaZodOutputFormat(CaseExtractionSchema) },
+    output_config: { effort: "high", format: zodOutputFormat(CaseExtractionSchema) },
     messages: [
       {
         role: "user",
