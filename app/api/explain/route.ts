@@ -1,3 +1,4 @@
+import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { buildPlan, PlanInputSchema } from "@/lib/engine";
@@ -29,6 +30,9 @@ export async function POST(req: Request) {
   } catch (e) {
     const fallback = true;
     if (e instanceof ExplainUnavailableError) return NextResponse.json({ error: e.message, fallback }, { status: 503 });
-    return NextResponse.json({ error: e instanceof Error ? e.message : "Błąd", fallback }, { status: 502 });
+    console.error("explain: AI explanation failed, template used", e instanceof Error ? e.message : e);
+    // Do not pass raw upstream errors to the browser.
+    const error = e instanceof Anthropic.APIError ? `AI jest chwilowo niedostępne (kod ${e.status ?? "?"}).` : e instanceof Error ? e.message : "Błąd";
+    return NextResponse.json({ error, fallback }, { status: 502 });
   }
 }

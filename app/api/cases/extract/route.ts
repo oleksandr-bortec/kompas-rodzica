@@ -34,10 +34,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: e.message, fallback: true }, { status: 503 });
     }
     if (e instanceof Anthropic.RateLimitError) {
-      return NextResponse.json({ error: "Za dużo zapytań do AI — spróbuj za chwilę." }, { status: 429 });
+      return NextResponse.json({ error: "Za dużo zapytań do AI — spróbuj za chwilę.", fallback: true }, { status: 429 });
     }
     if (e instanceof Anthropic.APIError) {
-      return NextResponse.json({ error: `Błąd usługi AI (${e.status ?? "?"}).` }, { status: 502 });
+      // e.g. credit balance used up, invalid key, service overloaded — the sample cases still work.
+      console.error("cases/extract: Claude API error", e.status, e.message);
+      return NextResponse.json({ error: `Odczyt przez AI jest chwilowo niedostępny (kod ${e.status ?? "?"}).`, fallback: true }, { status: 502 });
     }
     return NextResponse.json({ error: e instanceof Error ? e.message : "Nieznany błąd." }, { status: 500 });
   }

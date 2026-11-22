@@ -6,6 +6,22 @@
 
 AI **nie liczy** kwot, okresów ani terminów i nie wydaje decyzji.
 
+## Koszt i limity (szacunek z 22.11.2026)
+
+Model `claude-opus-5-5`: 4 USD za 1 mln tokenów wejściowych, 20 USD za 1 mln wyjściowych (cennik Anthropic).
+Strona PDF to zwykle 1 500–3 000 tokenów; skan bez warstwy tekstu — do ok. 1 600.
+
+| Operacja | Typowo | Najgorzej |
+|---|---|---|
+| Odczyt akt, 20 stron (mediana przykładowych spraw ZUS) | ok. 0,25 USD | ok. 0,55 USD |
+| Odczyt akt, 42 strony (90% spraw ma nie więcej) | ok. 0,40 USD | ok. 0,85 USD |
+| „Wyjaśnij mi to” (jeden język) | ok. 0,03 USD | ok. 0,09 USD |
+
+„Najgorzej” = pełny limit odpowiedzi (`max_tokens` 16 000 przy odczycie, 4 000 przy wyjaśnieniu).
+Zabezpieczenia: limit wydatków ustawiony w konsoli Anthropic; plik do 4 MB; gdy AI jest niedostępne
+(brak klucza lub środków, zły klucz, przeciążenie), odczyt akt proponuje przykładowe sprawy,
+a wyjaśnienie pokazuje gotowy szablon bez AI — reszta aplikacji działa bez AI.
+
 ## W tworzeniu kodu (dziennik)
 | Czas | Narzędzie | Co zrobiono |
 |---|---|---|
@@ -28,3 +44,4 @@ AI **nie liczy** kwot, okresów ani terminów i nie wydaje decyzji.
 | 2026-11-22 | Claude Code | Weryfikacja na 9 sprawach ZUS (lokalnie): 7/7 zgodnych werdyktów; parametry 2025; płatnik po ustaniu ubezpieczenia (art. 61); ostrzeżenia: umowa w czasie ciąży, ponowne zgłoszenie do dobrowolnego ubezpieczenia |
 | 2026-11-22 | Claude Code | „Wyjaśnij mi to”: wyjaśnienie planu PL/UA/EN — AI pisze tylko placeholdery (bez liczb), walidacja odrzuca własne cyfry, wartości wstawia silnik w przeglądarce; szablon bez AI jako zapas |
 | 2026-11-22 | Claude Code | Testy całości (4 persony, formularz ręczny, kalkulator, dokumenty, PDF/.ics, „Sprawdź sprawę”, admin, 360 px / desktop, dostępność) i poprawki: tytuły kart z metadanych tras, walidacja `/api/params?date`, limit 4 MB i czytelne błędy wgrywania, badge „Symulacja” w przykładowych sprawach, powód braku prawa z dniem i datą, etykiety stawek z planu (zmiany w panelu admina), oś wykresu, kalkulator (powód braku prawa, kwota rodzicielskiego), zawijanie na 360 px, poprawione opisy na stronie „AI w aplikacji” |
+| 2026-11-22 | Claude Code | Szacunek kosztu AI na przykładowych sprawach (87 plików: mediana 20 stron); przy błędzie usługi AI (np. brak środków) odczyt akt proponuje przykłady, a wyjaśnienie nie przekazuje surowych błędów do przeglądarki |
