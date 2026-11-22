@@ -40,18 +40,40 @@ const PLACEHOLDER_MEANING: Record<string, string> = {
   ryzyko: "nazwa najważniejszego ryzyka",
 };
 
-const LANG_NAME: Record<Lang, string> = { pl: "po polsku, zwracając się na „Ty”", uk: "українською мовою, звертаючись на «ви»", en: "in plain English" };
+const LANG_NAME: Record<Lang, string> = {
+  pl: "Polish, addressing the reader informally (\u201eTy\u201d)",
+  uk: "Ukrainian (українською мовою), addressing the reader politely with \u00abви\u00bb",
+  en: "plain English",
+};
+
+const REASON_TEXT: Record<string, string | undefined> = {
+  ok: undefined,
+  no_insurance: "brak ubezpieczenia chorobowego w dniu porodu lub przyjęcia dziecka",
+  debt: "zadłużenie w składkach (działalność gospodarcza) — prawo dopiero po spłacie",
+  child_age: "dziecko przekroczyło limit wieku dla adopcji lub rodziny zastępczej",
+  other: "nie można potwierdzić prawa na podstawie danych",
+};
+
+/** The answer is in the requested language (ZUS terms in parentheses may stay Polish). */
+function inLanguage(text: string, lang: Lang): boolean {
+  const outside = text.replace(/\([^)]*\)/g, " ");
+  if (lang === "uk") return /[\u0400-\u04FF]/.test(outside) && !/\b(jest|oraz|się|który|można|zasiłek)\b/i.test(outside);
+  if (lang === "en") return /\b(the|and|you|your|is|of)\b/i.test(outside) && !/\b(jest|oraz|się|który|można)\b/i.test(outside);
+  return !/[\u0400-\u04FF]/.test(outside);
+}
 
 export class ExplainUnavailableError extends Error {}
 
-export async function explainPlanWithAI(plan: Plan, placeholderKeys: string[], lang: Lang, event: string): Promise<string[]> {
+export async function explainPlanWithAI(plan: Plan, placeholderKeys: string[], lang: Lang, event: string, eventDate: string): Promise<string[]> {
   if (!process.env.ANTHROPIC_API_KEY) throw new ExplainUnavailableError("Brak klucza ANTHROPIC_API_KEY.");
 
+  const future = eventDate > new Date().toISOString().slice(0, 10);
   const facts = {
-    zdarzenie: event,
+    zdarzenie: event === "porod" ? "poród" : event === "adopcja" ? "przyjęcie dziecka (adopcja)" : "przyjęcie dziecka (rodzina zastępcza)",
+    kiedy: future ? "w przyszłości — to planowany termin, dziecko jeszcze się nie urodziło / nie zostało przyjęte" : "już było",
     prawo_do_zasilku: plan.eligibility.A.eligible,
-    powod: reasonCode(plan),
-    wariant: plan.variantApplied === "81.5" ? "81,5% za cały okres" : "100% za macierzyński i 70% za rodzicielski",
+    powod_braku_prawa: REASON_TEXT[reasonCode(plan)],
+    wariant: plan.variantApplied === "81.5" ? "jedna stawka za cały urlop (macierzyński i rodzicielski)" : "wyższa stawka za macierzyński, niższa za rodzicielski",
     urlopy: [...new Set(plan.segments.map((s) => `${s.parent === "A" ? "pierwszy rodzic" : "drugi rodzic"}: ${s.kind}`))],
     ryzyka: plan.risks.slice(0, 3).map((r) => r.title.replace(/\d+([.,]\d+)?/g, "…")),
   };
@@ -59,13 +81,14 @@ export async function explainPlanWithAI(plan: Plan, placeholderKeys: string[], l
 
   const client = new Anthropic();
   const userPrompt =
-    `Napisz wyjaśnienie planu ${LANG_NAME[lang]}: 3–5 krótkich akapitów, bez nagłówków i list, bez żargonu (jeśli używasz polskiego terminu ZUS w innym języku, dodaj go w nawiasie).\n` +
-    `Ostatni akapit: jedno zdanie, że to informacja, a nie decyzja ZUS.\n` +
-    `Nie pisz żadnej cyfry — także w terminach i nazwach (np. zamiast „21 dni” napisz „do {data_wniosku}”, zamiast „81,5%” napisz „{procent_A}”).\n\n` +
-    `Fakty (bez liczb):\n${JSON.stringify(facts, null, 2)}\n\n` +
-    `Dostępne placeholdery (używaj tylko tych, każdą liczbę/datę zapisuj placeholderem):\n${placeholders}`;
+    `Write the explanation in ${LANG_NAME[lang]} — every sentence in that language.\n` +
+    `3–5 short paragraphs, no headings or lists, no jargon; when you use a Polish ZUS term in another language, add it in parentheses.\n` +
+    `Last paragraph: one sentence saying this is information, not a ZUS decision.\n` +
+    `Never write a digit — numbers, dates, percentages and periods only as the placeholders below (e.g. not "21 days" but "by {data_wniosku}").\n\n` +
+    `Facts (in Polish, without numbers):\n${JSON.stringify(facts, null, 2)}\n\n` +
+    `Placeholders you may use (only these; write every number or date as one of them):\n${placeholders}`;
 
-  // Second try: tell the model exactly which fragments broke the no-digits rule.
+  // Second try: tell the model exactly what broke the rules (digits, unknown placeholders, language).
   let feedback = "";
   for (let attempt = 0; attempt < 2; attempt++) {
     const response = await client.messages.parse({
@@ -73,16 +96,21 @@ export async function explainPlanWithAI(plan: Plan, placeholderKeys: string[], l
       max_tokens: 4000,
       output_config: { effort: "low", format: zodOutputFormat(OutputSchema) },
       system:
-        "Jesteś spokojnym, życzliwym doradcą, który tłumaczy przyszłym rodzicom ich plan zasiłków ZUS prostym językiem. " +
-        "Nie wydajesz decyzji i nie liczysz kwot. Liczby, daty i procenty wolno Ci zapisywać WYŁĄCZNIE jako podane placeholdery w nawiasach klamrowych — nigdy cyframi. " +
-        "Nie wymyślaj faktów spoza podanych danych.",
+        "You are a calm, kind adviser who explains a future parent's ZUS benefit plan in plain language. " +
+        "You do not decide and you do not calculate. Numbers, dates and percentages may appear ONLY as the given {placeholders} in curly braces — never as digits. " +
+        `Do not invent facts beyond the data. Always answer in ${LANG_NAME[lang]}.`,
       messages: [{ role: "user", content: userPrompt + feedback }],
     });
     if (response.stop_reason === "refusal" || !response.parsed_output) throw new Error("Brak poprawnej odpowiedzi modelu.");
     const paragraphs = response.parsed_output.paragraphs.map((p) => p.trim()).filter(Boolean);
     const bad = paragraphs.flatMap((p) => unsafeFragments(p, placeholderKeys));
-    if (paragraphs.length > 0 && bad.length === 0) return paragraphs;
-    feedback = `\n\nUWAGA: poprzednia wersja była niepoprawna — zawierała: ${bad.slice(0, 6).map((b) => `„${b}”`).join(", ")}. Napisz całość od nowa bez tych fragmentów: bez cyfr i tylko z podanymi placeholderami.`;
+    const wrongLanguage = paragraphs.some((p) => !inLanguage(p, lang));
+    if (paragraphs.length > 0 && bad.length === 0 && !wrongLanguage) return paragraphs;
+    feedback =
+      "\n\nIMPORTANT: the previous answer was rejected" +
+      (bad.length ? ` — it contained: ${bad.slice(0, 6).map((b) => `"${b}"`).join(", ")}` : "") +
+      (wrongLanguage ? ` — it was not written in ${LANG_NAME[lang]}` : "") +
+      ". Write it again from scratch following all rules.";
   }
   throw new Error("Odpowiedź AI zawierała własne liczby lub nieznane pola — użyto wyjaśnienia bez AI.");
 }
