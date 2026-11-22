@@ -35,7 +35,7 @@ Legenda: ✅ gotowe · 🟡 częściowo (opis w uwagach) · ⬜ brak
 | Wymaganie | Gdzie | Status | Uwagi |
 |---|---|---|---|
 | Organizacje wsparcia + linki do zus.pl, MRPiPS, PIP | /pomoc | ✅ | |
-| Panel administracyjny: procenty, maksymalne okresy, nowe funkcje | [/admin](https://kompas-rodzica.vercel.app/admin) (hasło) | ✅ | Edycja parametrów → nowa wersja z datą wejścia w życie → plany przeliczają się od tej daty; historia wersji. Demo zapisuje w przeglądarce, produkcja: baza danych za `PUT /api/params` |
+| Panel administracyjny: procenty, maksymalne okresy, nowe funkcje | [/admin](https://kompas-rodzica.vercel.app/admin) (hasło: `KompasJury2026`) | ✅ | Edycja parametrów → nowa wersja z datą wejścia w życie → plany przeliczają się od tej daty; historia wersji. Demo zapisuje w przeglądarce, produkcja: baza danych za `PUT /api/params` |
 | Lista funkcji AI | [/ai](https://kompas-rodzica.vercel.app/ai), `docs/ai-usage.md` | ✅ | Odczyt akt (Sprawdź sprawę) i „Wyjaśnij mi to” — wyjaśnienie planu po polsku, ukraińsku i angielsku; AI pisze tylko placeholdery, liczby wstawia silnik |
 | RWD (komputer + telefon) | cała aplikacja | ✅ | Dolna nawigacja na telefonie, boczna na komputerze |
 | REST API | `/api/calculate`, `/api/eligibility`, `/api/params`, `/api/cases/extract`, `/api/explain` | ✅ | Walidacja Zod, błędy 400 z opisem; opis w README |

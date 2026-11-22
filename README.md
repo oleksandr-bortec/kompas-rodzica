@@ -13,6 +13,7 @@ jak podzielić urlopy, jakie dokumenty złożyć i gdzie — oraz na co uważać
 ## Demo
 
 - **Aplikacja:** https://kompas-rodzica.vercel.app
+- **Panel administracyjny:** https://kompas-rodzica.vercel.app/admin (hasło: `KompasJury2026`)
 - **Film (2:45):** https://youtu.be/pdhRhq2WKN0
 - **Kod:** https://github.com/oleksandr-bortec/kompas-rodzica
 
