@@ -12,7 +12,7 @@ export interface TimelineSegment {
 const pct = (p: number) => `${String(p).replace(".", ",")}%`;
 
 /** Saturation encodes payment %: 100 solid, 81.5 medium, 70 light. Label always present. */
-function shade(parent: "A" | "B", percent: number) {
+export function shade(parent: "A" | "B", percent: number) {
   const base = parent === "A" ? "14,124,102" : "91,95,199";
   const alpha = percent >= 100 ? 1 : percent >= 80 ? 0.7 : percent > 0 ? 0.35 : 0.12;
   return `rgba(${base},${alpha})`;

@@ -8,7 +8,7 @@ import { MonthlyChart } from "@/components/kr/monthly-chart";
 import { Timeline } from "@/components/kr/timeline";
 import { PAYER_LABEL, usePlan } from "@/components/kr/use-plan";
 import { PageHeader, Panel, ToneBox, ToneIcon } from "@/components/kr/ui";
-import { daysUntil, formatDate, formatDateShort, formatPLN, monthShort, SEGMENT_LABEL, variantText } from "@/lib/format";
+import { daysUntil, formatDate, formatDateShort, formatPLN, SEGMENT_LABEL, variantText } from "@/lib/format";
 import { deadlinesToIcs } from "@/lib/calendar/ics";
 import { planMonths } from "@/lib/engine/months";
 import type { Payer } from "@/lib/engine";
@@ -56,7 +56,7 @@ export default function PlanPage() {
           href: "/dokumenty",
         }
       : { title: "Sprawdź lub popraw swoje dane", date: null, href: "/dane-reczne" };
-  const months = planMonths(plan, persona.eventDate).map((m) => ({ month: monthShort(m.month), a: m.a, b: m.b }));
+  const months = planMonths(plan, persona.eventDate);
   const hasAmounts = months.some((m) => m.a + m.b > 0);
 
   function downloadCalendar() {
