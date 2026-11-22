@@ -46,7 +46,7 @@ Wszystkie biblioteki mają licencje otwarte, dopuszczające użycie komercyjne i
 
 | Usługa | Do czego | Uwagi |
 |---|---|---|
-| [Claude API](https://www.anthropic.com/api) (Anthropic), model `claude-opus-5-5` | Odczyt akt sprawy (PDF/skan) → dane do potwierdzenia przez człowieka | Wymaga `ANTHROPIC_API_KEY`; AI nie liczy kwot ani nie wydaje decyzji; plik nie jest zapisywany |
+| [Claude API](https://www.anthropic.com/api) (Anthropic), model `claude-haiku-5-5` (zmienny przez `ANTHROPIC_MODEL`) | Odczyt akt sprawy (PDF/skan) → dane do potwierdzenia przez człowieka; wyjaśnienie planu PL/UA/EN | Wymaga `ANTHROPIC_API_KEY`; AI nie liczy kwot ani nie wydaje decyzji; plik nie jest zapisywany |
 | [Vercel](https://vercel.com) | Hosting demo i podglądy PR | Plan Hobby |
 | [GitHub](https://github.com) + GitHub Actions | Repozytorium i CI (lint, testy, build) | |
 

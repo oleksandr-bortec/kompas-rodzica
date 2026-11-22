@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     if (e instanceof Anthropic.APIError) {
       // e.g. credit balance used up, invalid key, service overloaded — the sample cases still work.
       console.error("cases/extract: Claude API error", e.status, e.message);
-      return NextResponse.json({ error: `Odczyt przez AI jest chwilowo niedostępny (kod ${e.status ?? "?"}).`, fallback: true }, { status: 502 });
+      return NextResponse.json({ error: `Odczyt przez AI jest chwilowo niedostępny${e.status ? ` (kod ${e.status})` : ""}.`, fallback: true }, { status: 502 });
     }
     return NextResponse.json({ error: e instanceof Error ? e.message : "Nieznany błąd." }, { status: 500 });
   }
