@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronRight, Sparkles, Trash2 } from "lucide-react";
+import { ChevronRight, FileSearch, Sparkles, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { usePersona } from "@/components/kr/persona-provider";
@@ -81,6 +81,16 @@ export default function ProfilePage() {
               <label className="flex items-center justify-between py-3">Wysoki kontrast <Switch checked={contrast} onCheckedChange={setContrast} /></label>
             </div>
           </Panel>
+          <Link href="/sprawdz-sprawe" className="block">
+            <Panel className="flex items-center gap-3 hover:border-kr-primary/40">
+              <FileSearch className="size-5 text-kr-primary" aria-hidden />
+              <span className="flex-1">
+                <span className="block font-medium">Sprawdź sprawę</span>
+                <span className="block kr-small text-kr-text-2">Wgraj akta ZUS (PDF) albo wybierz przykład — werdykt silnika i porównanie z decyzją ZUS</span>
+              </span>
+              <ChevronRight className="size-5 text-kr-text-2" aria-hidden />
+            </Panel>
+          </Link>
           <Link href="/ai" className="block">
             <Panel className="flex items-center gap-3 hover:border-kr-partner/40">
               <Sparkles className="size-5 text-kr-partner" aria-hidden />
