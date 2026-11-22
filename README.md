@@ -24,6 +24,18 @@ Wersja demonstracyjna jest publikowana automatycznie na Vercel z gałęzi `main`
 (każdy PR dostaje własny podgląd). Dane osób w demo są fikcyjne, a imitacje systemów
 (mObywatel, ZUS, e-ZLA, PUE/eZUS) mają oznaczenie „Symulacja”.
 
+## Panel administracyjny (dla jury)
+
+1. Otwórz https://kompas-rodzica.vercel.app/admin i wpisz hasło demo: **`KompasJury2026`**.
+2. W tabeli parametrów wpisz nową wartość, np. `combinedRate.ratePercent` = `80` (zamiast 81,5%).
+3. Ustaw datę wejścia w życie, np. `2027-01-01`, i kliknij „Zapisz nową wersję”.
+4. Otwórz **Plan** (profil Ania i Tomek, poród 15.03.2027): kwota zmienia się z 6 683 zł na 6 560 zł,
+   a etykiety pokazują 80% — plany ze zdarzeniem od tej daty liczą się z nowej wersji.
+5. „Przywróć parametry z kodu” usuwa wersje zapisane w panelu.
+
+W demo nowe wersje zapisują się tylko w Twojej przeglądarce (nie zmieniają aplikacji innym osobom),
+dlatego hasło demo może być jawne. W produkcji: baza danych za REST API z dziennikiem zmian i rolami.
+
 ## Uruchomienie lokalnie
 
 ```bash
