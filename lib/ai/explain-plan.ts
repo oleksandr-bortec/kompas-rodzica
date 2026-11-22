@@ -73,6 +73,7 @@ export async function explainPlanWithAI(plan: Plan, placeholderKeys: string[], l
     kiedy: future ? "w przyszłości — to planowany termin, dziecko jeszcze się nie urodziło / nie zostało przyjęte" : "już było",
     prawo_do_zasilku: plan.eligibility.A.eligible,
     powod_braku_prawa: REASON_TEXT[reasonCode(plan)],
+    wniosek_skladasz_u: plan.documents.find((d) => d.parent === "A")?.where ?? null,
     wariant: plan.variantApplied === "81.5" ? "jedna stawka za cały urlop (macierzyński i rodzicielski)" : "wyższa stawka za macierzyński, niższa za rodzicielski",
     urlopy: [...new Set(plan.segments.map((s) => `${s.parent === "A" ? "pierwszy rodzic" : "drugi rodzic"}: ${s.kind}`))],
     ryzyka: plan.risks.slice(0, 3).map((r) => r.title.replace(/\d+([.,]\d+)?/g, "…")),
