@@ -3,7 +3,7 @@ import { PageHeader, Panel } from "@/components/kr/ui";
 
 const DOES = [
   ["Czyta dokumenty", "Rozpoznaje typ formularza (ZAM, Z-3, Z-3a, ZAS-53, zaświadczenia, także stare ZUR/ZAO/Z-3b) i wypełnia pola. Każde pole ma poziom pewności — Ty je potwierdzasz."],
-  ["Wyjaśnia wynik prostym językiem", "Opisuje każdy wiersz planu z odwołaniem do przepisu. Liczby w tekście wstawia silnik reguł."],
+  ["Wyjaśnia plan prostym językiem — po polsku, ukraińsku lub angielsku", "„Wyjaśnij mi to” na ekranie „Dlaczego tyle?”. AI dostaje tylko fakty bez liczb i pisze w miejscu kwot i dat znaczniki, np. {kwota}; liczby wstawia silnik reguł. Tekst z jakąkolwiek własną cyfrą AI jest odrzucany."],
 ];
 const DOESNT = [
   "Nie liczy kwot, okresów ani terminów — robi to przejrzysty silnik reguł, sprawdzony testami.",

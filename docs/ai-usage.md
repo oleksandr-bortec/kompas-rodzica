@@ -26,3 +26,4 @@ AI **nie liczy** kwot, okresów ani terminów i nie wydaje decyzji.
 | 2026-11-22 | Claude Code | docs/biblioteki.md (biblioteki, fonty, usługi, licencje); usunięte nieużywane zależności ai i pdf-parse |
 | 2026-11-22 | Claude Code | Bez zaślepek: odpowiedzi z „Kilka pytań” zmieniają plan; „Popraw” otwiera formularz z danymi z ZUS (+ zadłużenie); panel admina zapisuje wersje parametrów z datą wejścia w życie i plany się przeliczają |
 | 2026-11-22 | Claude Code | Weryfikacja na 9 sprawach ZUS (lokalnie): 7/7 zgodnych werdyktów; parametry 2025; płatnik po ustaniu ubezpieczenia (art. 61); ostrzeżenia: umowa w czasie ciąży, ponowne zgłoszenie do dobrowolnego ubezpieczenia |
+| 2026-11-22 | Claude Code | „Wyjaśnij mi to”: wyjaśnienie planu PL/UA/EN — AI pisze tylko placeholdery (bez liczb), walidacja odrzuca własne cyfry, wartości wstawia silnik w przeglądarce; szablon bez AI jako zapas |
