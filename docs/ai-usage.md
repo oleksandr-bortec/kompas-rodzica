@@ -13,8 +13,8 @@ Strona PDF to zwykle 1 500–3 000 tokenów; skan bez warstwy tekstu — do ok. 
 
 | Operacja | Typowo | Najgorzej |
 |---|---|---|
-| Odczyt akt, 20 stron (mediana przykładowych spraw ZUS) | ok. 0,25 USD | ok. 0,55 USD |
-| Odczyt akt, 42 strony (90% spraw ma nie więcej) | ok. 0,40 USD | ok. 0,85 USD |
+| Odczyt akt, 20 stron (mediana przykładowych spraw ZUS) | ok. 0,25 USD | ok. 0,57 USD |
+| Odczyt akt, 42 strony (90% spraw ma nie więcej) | ok. 0,40 USD | ok. 0,83 USD |
 | „Wyjaśnij mi to” (jeden język) | ok. 0,03 USD | ok. 0,09 USD |
 
 „Najgorzej” = pełny limit odpowiedzi (`max_tokens` 16 000 przy odczycie, 4 000 przy wyjaśnieniu).
