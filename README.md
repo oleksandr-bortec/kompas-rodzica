@@ -16,6 +16,10 @@ jak podzielić urlopy, jakie dokumenty złożyć i gdzie — oraz na co uważać
 - **Film (2:45):** https://youtu.be/pdhRhq2WKN0
 - **Kod:** https://github.com/oleksandr-bortec/kompas-rodzica
 
+| Plan | Kto, kiedy i ile | Kalkulator | Sprawdź sprawę |
+|---|---|---|---|
+| ![Plan: prawo do zasiłku, kto wypłaca, kwoty](docs/zrzuty/1-plan.jpg) | ![Oś czasu i lista okresów z datami i kwotami](docs/zrzuty/2-kto-kiedy-ile.jpg) | ![Kalkulator scenariuszy](docs/zrzuty/3-kalkulator.jpg) | ![Werdykt silnika zgodny z decyzją ZUS](docs/zrzuty/4-sprawdz-sprawe.jpg) |
+
 Wersja demonstracyjna jest publikowana automatycznie na Vercel z gałęzi `main`
 (każdy PR dostaje własny podgląd). Dane osób w demo są fikcyjne, a imitacje systemów
 (mObywatel, ZUS, e-ZLA, PUE/eZUS) mają oznaczenie „Symulacja”.
