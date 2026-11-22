@@ -1,9 +1,10 @@
+import p20250101 from "./2025-01-01.json";
 import p20260101 from "./2026-01-01.json";
 
 export type Params = typeof p20260101;
 
 /** Parameter versions shipped with the code (JSON files, reviewed in PRs). */
-export const PARAM_VERSIONS: Params[] = [p20260101];
+export const PARAM_VERSIONS: Params[] = [p20250101, p20260101];
 
 /**
  * Versions added at runtime by the admin panel (demo: stored in the browser;

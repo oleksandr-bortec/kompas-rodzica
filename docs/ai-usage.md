@@ -25,3 +25,4 @@ AI **nie liczy** kwot, okresów ani terminów i nie wydaje decyzji.
 | 2026-11-21 | Claude Code | Polerowanie: nowy ekran powitalny (podgląd planu z silnika, „Jak to działa”), strona 404 po polsku, tytuły kart, oś czasu 81,5%, krótszy chip płatnika, „Następny krok” z imieniem, bez migania persony |
 | 2026-11-22 | Claude Code | docs/biblioteki.md (biblioteki, fonty, usługi, licencje); usunięte nieużywane zależności ai i pdf-parse |
 | 2026-11-22 | Claude Code | Bez zaślepek: odpowiedzi z „Kilka pytań” zmieniają plan; „Popraw” otwiera formularz z danymi z ZUS (+ zadłużenie); panel admina zapisuje wersje parametrów z datą wejścia w życie i plany się przeliczają |
+| 2026-11-22 | Claude Code | Weryfikacja na 9 sprawach ZUS (lokalnie): 7/7 zgodnych werdyktów; parametry 2025; płatnik po ustaniu ubezpieczenia (art. 61); ostrzeżenia: umowa w czasie ciąży, ponowne zgłoszenie do dobrowolnego ubezpieczenia |

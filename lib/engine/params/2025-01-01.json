@@ -1,0 +1,94 @@
+{
+  "$comment": "Parametry na 2025 r. (sprawy przykładowe ZUS dotyczą 2025 r.). Reguły jak w wersji 2026 (Załącznik ZUS, ustawa zasiłkowa); różnią się kwoty zależne od płacy minimalnej i prognozowanego przeciętnego wynagrodzenia — patrz base.$comment.",
+  "version": "2025-01-01",
+  "effectiveFrom": "2025-01-01",
+  "eligibility": {
+    "waitingDaysMandatory": 30,
+    "waitingDaysVoluntary": 90,
+    "maxGapDaysForContinuity": 30
+  },
+  "payer": {
+    "employerPaysAboveInsured": 20,
+    "insuredCountDate": "11-30"
+  },
+  "debt": {
+    "$comment": "art. 2a ustawy zasiłkowej: działalność i osoby współpracujące — zadłużenie > 1% minimalnego wynagrodzenia w dniu powstania prawa blokuje wypłatę do spłaty; prawo przedawnia się po 6 mies.",
+    "thresholdPercentOfMinWage": 1,
+    "prescriptionMonths": 6
+  },
+  "base": {
+    "$comment": "Płaca minimalna 2025: 4 666 zł (rozporządzenie RM z 12.09.2024). Maks. podstawa dobrowolnego chorobowego 2025: 250% prognozowanego przeciętnego wynagrodzenia (8 673 zł) = 21 682,50 zł. Tych kwot nie ma w materiałach ZUS dla uczestników — do potwierdzenia u mentorów.",
+    "socialContributionPercent": 13.71,
+    "monthsBack": 12,
+    "minimumWage": 4666,
+    "voluntarySicknessMaxDeclaredBase": 21682.5
+  },
+  "sickness": {
+    "employerPaidDaysPerYear": 33,
+    "employerPaidDaysPerYearOver50": 14,
+    "pregnancyRatePercent": 100,
+    "maxDays": 270
+  },
+  "maternity": {
+    "weeksOneChild": 20,
+    "weeksByChildren": {
+      "1": 20,
+      "2": 31,
+      "3": 33,
+      "4": 35,
+      "5": 37
+    },
+    "maxWeeksBeforeBirth": 6,
+    "motherOnlyWeeksAfterBirth": 14,
+    "ratePercent": 100
+  },
+  "parental": {
+    "poolWeeks": 41,
+    "poolWeeksMultiple": 43,
+    "poolWeeksZaZyciem": 65,
+    "poolWeeksZaZyciemMultiple": 67,
+    "nonTransferableWeeksPerParent": 9,
+    "maxParts": 5,
+    "untilChildAgeYearEnd": 6,
+    "ratePercent": 70,
+    "maxWorkFraction": 0.5
+  },
+  "paternity": {
+    "days": 14,
+    "minPartDays": 7,
+    "maxParts": 2,
+    "untilChildAgeMonths": 12,
+    "adoptionMonthsFromDecision": 12,
+    "adoptionMaxChildAgeYears": 14,
+    "ratePercent": 100
+  },
+  "supplementaryMaternity": {
+    "$comment": "1 tydzień za każdy tydzień hospitalizacji (niepełny tydzień w górę); limit 15 tyg. (przed 28. tyg. ciąży lub masa ≤ 1000 g), 8 tyg. w pozostałych przypadkach.",
+    "maxWeeksExtremelyPreterm": 15,
+    "maxWeeksOther": 8,
+    "ratePercent": 100
+  },
+  "adoption": {
+    "fosterMaxChildAgeYears": 7,
+    "fosterMaxChildAgeYearsSchoolDeferred": 10,
+    "adoptionMaxChildAgeYears": 14,
+    "weeksByChildren": {
+      "1": 20,
+      "2": 31,
+      "3": 33,
+      "4": 35,
+      "5": 37
+    },
+    "minWeeks": 9,
+    "ratePercent": 100
+  },
+  "stillbirth": {
+    "weeksAfterBirth": 8,
+    "minDaysAfterDeath": 7,
+    "daysIfDeathAfter8Weeks": 7
+  },
+  "combinedRate": {
+    "ratePercent": 81.5,
+    "applicationDeadlineDays": 21
+  }
+}
