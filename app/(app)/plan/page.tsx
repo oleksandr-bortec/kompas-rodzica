@@ -8,7 +8,7 @@ import { MonthlyChart } from "@/components/kr/monthly-chart";
 import { Timeline } from "@/components/kr/timeline";
 import { PAYER_LABEL, usePlan } from "@/components/kr/use-plan";
 import { PageHeader, Panel, ToneBox, ToneIcon } from "@/components/kr/ui";
-import { daysUntil, formatDate, formatPLN, monthShort, variantText } from "@/lib/format";
+import { daysUntil, formatDate, formatDateShort, formatPLN, monthShort, SEGMENT_LABEL, variantText } from "@/lib/format";
 import { deadlinesToIcs } from "@/lib/calendar/ics";
 import { planMonths } from "@/lib/engine/months";
 import type { Payer } from "@/lib/engine";
@@ -146,7 +146,34 @@ export default function PlanPage() {
               segments={plan.segments.map((s) => ({ parent: s.parent, kind: s.kind, startWeek: s.startWeek, weeks: s.weeks, percent: s.ratePercent }))}
               nameA={persona.a.name}
               nameB={persona.b?.name}
+              startDate={persona.eventDate}
             />
+            {plan.segments.length > 0 && (
+              <ul className="mt-5 divide-y divide-kr-border border-t border-kr-border">
+                {[...plan.segments]
+                  .sort((x, y) => x.start.localeCompare(y.start) || x.parent.localeCompare(y.parent))
+                  .map((s, i) => (
+                    <li key={i} className="flex items-start justify-between gap-3 py-3">
+                      <div className="min-w-0">
+                        <p className="kr-small font-semibold" style={{ color: s.parent === "A" ? "#0A5546" : "#5B5FC7" }}>
+                          {s.parent === "A" ? persona.a.name : persona.b?.name ?? "Drugi rodzic"} · {SEGMENT_LABEL[s.kind] ?? s.kind}
+                        </p>
+                        <p className="kr-caption font-normal text-kr-text-2 tabular">
+                          {formatDateShort(s.start)} – {formatDateShort(s.end)} ·{" "}
+                          {s.kind === "ojcowski" ? `${Math.round(s.weeks * 7)} dni` : `${String(Math.round(s.weeks * 10) / 10).replace(".", ",")} tyg.`} ·{" "}
+                          {String(s.ratePercent).replace(".", ",")}%
+                        </p>
+                      </div>
+                      {s.monthlyAmount !== null && (
+                        <p className="shrink-0 text-right font-heading font-bold tabular">
+                          {formatPLN(s.monthlyAmount)}
+                          <span className="block kr-caption font-normal text-kr-text-2">za pełny miesiąc</span>
+                        </p>
+                      )}
+                    </li>
+                  ))}
+              </ul>
+            )}
           </Panel>
 
           {hasAmounts && (
