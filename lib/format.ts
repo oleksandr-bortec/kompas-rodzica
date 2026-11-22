@@ -1,4 +1,5 @@
 import { diffDays } from "./engine/dates";
+import type { Plan } from "./engine/types";
 
 const dateFmt = new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "long", year: "numeric" });
 const dateShort = new Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "2-digit", year: "numeric" });
@@ -52,3 +53,10 @@ export const TITLE_LABEL: Record<string, string> = {
 const MONTHS_SHORT = ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];
 /** "2027-03" → "mar" (deterministic, no Intl — avoids hydration mismatch). */
 export const monthShort = (yyyyMm: string) => MONTHS_SHORT[Number(yyyyMm.slice(5, 7)) - 1];
+
+/** Rates of parent A's leave in this plan, e.g. "81,5%" or "100% + 70%" (follows parameter versions). */
+export function variantText(plan: Plan): string {
+  const rates = [...new Set(plan.segments.filter((s) => s.parent === "A" && s.kind !== "ojcowski").map((s) => s.ratePercent))];
+  if (rates.length === 0) return plan.variantApplied === "81.5" ? "81,5%" : "100% + 70%";
+  return rates.map((r) => `${String(r).replace(".", ",")}%`).join(" + ");
+}

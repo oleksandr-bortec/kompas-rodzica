@@ -1,11 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { BadgeCheck, Building2, CheckCircle2, Compass, FileSearch, FileText, Lock, PencilLine, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DocTitle } from "@/components/kr/doc-title";
 import { buildPlan } from "@/lib/engine";
 import { getPersona } from "@/lib/personas/data";
 import { personaToInput } from "@/lib/personas/to-engine";
-import { formatPLN } from "@/lib/format";
+import { formatPLN, variantText } from "@/lib/format";
 
 const STEPS = [
   { icon: ShieldCheck, title: "Dane", text: "Logujesz się przez mObywatel albo wpisujesz dane sam. Możesz też wgrać akta sprawy." },
@@ -20,6 +20,8 @@ const TRUST = [
 ];
 
 /** Ekran 1 — Powitanie. Preview numbers come from the rules engine (demo persona). */
+export const metadata: Metadata = { title: { absolute: "Przewodnik przyszłego rodzica · Kompas Rodzica" } };
+
 export default function WelcomePage() {
   const demo = getPersona("ania");
   const plan = buildPlan(personaToInput(demo));
@@ -27,7 +29,6 @@ export default function WelcomePage() {
 
   return (
     <main className="mx-auto min-h-dvh max-w-6xl px-4 pb-10 pt-8 sm:px-6 lg:px-10 lg:pt-12">
-      <DocTitle title="Przewodnik przyszłego rodzica" />
       <div className="flex items-center gap-2">
         <span className="grid size-10 place-items-center rounded-xl bg-kr-primary text-white">
           <Compass className="size-6" aria-hidden />
@@ -74,7 +75,7 @@ export default function WelcomePage() {
                 <CheckCircle2 className="size-3.5" aria-hidden /> Masz prawo
               </span>
             </div>
-            <p className="mt-4 kr-small text-kr-text-2">{demo.a.name} · za pełny miesiąc · 81,5%</p>
+            <p className="mt-4 kr-small text-kr-text-2">{demo.a.name} · za pełny miesiąc · {variantText(plan)}</p>
             <p className="kr-amount text-kr-primary-dark">{plan.monthly.A !== null ? formatPLN(plan.monthly.A) : "—"}</p>
             <p className="mt-1 inline-flex items-center gap-1.5 kr-small text-kr-text-2">
               <Building2 className="size-4" aria-hidden /> Wypłaca pracodawca

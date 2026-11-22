@@ -141,6 +141,8 @@ export interface DocumentItem {
 
 export interface Plan {
   paramsVersion: string;
+  /** Date the parameter version used for this plan took effect (YYYY-MM-DD). */
+  paramsEffectiveFrom: string;
   eligibility: { A: EligibilityResult; B?: EligibilityResult };
   payer: { A: Payer; B?: Payer };
   variantApplied: "81.5" | "100-70";

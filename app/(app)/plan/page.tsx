@@ -8,7 +8,7 @@ import { MonthlyChart } from "@/components/kr/monthly-chart";
 import { Timeline } from "@/components/kr/timeline";
 import { PAYER_LABEL, usePlan } from "@/components/kr/use-plan";
 import { PageHeader, Panel, ToneBox, ToneIcon } from "@/components/kr/ui";
-import { daysUntil, formatDate, formatPLN, monthShort } from "@/lib/format";
+import { daysUntil, formatDate, formatPLN, monthShort, variantText } from "@/lib/format";
 import { deadlinesToIcs } from "@/lib/calendar/ics";
 import { planMonths } from "@/lib/engine/months";
 import type { Payer } from "@/lib/engine";
@@ -43,7 +43,7 @@ export default function PlanPage() {
   }, []);
   const days = now && daysUntil(persona.eventDate, now);
   const eventWord = persona.event === "porod" ? "terminu porodu" : "przyjęcia dziecka";
-  const variantLabel = plan.variantApplied === "81.5" ? "81,5%" : "100% + 70%";
+  const variantLabel = variantText(plan);
   // Next step from engine output: a blocking risk first, then the earliest dated document.
   const blocking = plan.risks.find((r) => r.severity === "danger");
   const firstDoc = plan.documents.find((d) => d.deadline);
@@ -74,7 +74,6 @@ export default function PlanPage() {
   return (
     <div>
       <PageHeader
-        docTitle="Twój plan"
         title={persona.id === "custom" ? "Twój plan" : `Cześć, ${persona.a.name}${persona.b ? ` i ${persona.b.name}` : ""}`}
         subtitle={
           days !== null && days > 0 ? `Do ${eventWord}: ${days} ${days === 1 ? "dzień" : "dni"} (${formatDate(persona.eventDate)})` : `Data ${eventWord}: ${formatDate(persona.eventDate)}`
@@ -163,7 +162,7 @@ export default function PlanPage() {
               <ul className="list-disc pl-4">{plan.todos.map((t) => <li key={t}>{t}</li>)}</ul>
             </ToneBox>
           )}
-          <p className="kr-small text-kr-text-2">To informacja, a nie decyzja ZUS. Parametry z dnia {plan.paramsVersion}.</p>
+          <p className="kr-small text-kr-text-2">To informacja, a nie decyzja ZUS. Parametry obowiązujące od {formatDate(plan.paramsEffectiveFrom)}.</p>
         </div>
 
         <aside className="space-y-4">

@@ -49,7 +49,7 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
   trace.push({
     id: "params",
     label: "Parametry",
-    detail: `Użyto parametrów obowiązujących od ${params.effectiveFrom}.`,
+    detail: `Użyto parametrów obowiązujących od ${dateText(params.effectiveFrom)}.`,
     rule: `lib/engine/params/${params.version}.json`,
   });
 
@@ -361,6 +361,7 @@ export function buildPlan(rawInput: PlanInput, paramsOverride?: Params): Plan {
 
   return {
     paramsVersion: params.version,
+    paramsEffectiveFrom: params.effectiveFrom,
     eligibility: { A: eligA, B: eligB },
     payer: { A: payerA, B: payerB },
     variantApplied: variant,

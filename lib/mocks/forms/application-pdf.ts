@@ -1,13 +1,13 @@
 import fontkit from "@pdf-lib/fontkit";
 import { PDFDocument, PageSizes, rgb } from "pdf-lib";
-import { formatDateShort, SEGMENT_LABEL } from "@/lib/format";
+import { formatDateShort, SEGMENT_LABEL, variantText } from "@/lib/format";
 import type { Plan } from "@/lib/engine/types";
 import type { Persona } from "@/lib/personas/types";
 
 export type FormKind = "employer" | "zam";
 
 export function variantLabel(plan: Plan) {
-  return plan.variantApplied === "81.5" ? "81,5%" : "100% + 70%";
+  return variantText(plan);
 }
 
 /** Print a preview for applicant A, using the same plan as the Plan screen. */

@@ -58,6 +58,15 @@ Wszystkie biblioteki mają licencje otwarte, dopuszczające użycie komercyjne i
 - Przykładowe sprawy ZUS **nie są** częścią repozytorium ani demo (zakaz rozpowszechniania);
   sprawy w demo są fikcyjne.
 
+## Bezpieczeństwo zależności (`npm audit`, 22.11.2026)
+
+- W zależnościach produkcyjnych zostają 2 zgłoszenia: `postcss` wbudowany w `next` 15.5 (XSS przy
+  serializacji CSS, odczyt plików `.map`). Dotyczą przetwarzania CSS w czasie budowania, a nie
+  działającej aplikacji: nie przetwarzamy CSS od użytkowników. Poprawka wymaga Next.js 16
+  (zmiana łamiąca) — świadomie odkładamy ją na po hackathonie.
+- Pozostałe zgłoszenia dotyczą narzędzi deweloperskich (np. `shadcn` CLI → `minimatch`), które nie
+  trafiają do wdrożonej aplikacji; `shadcn` jest w `devDependencies`.
+
 ## AI w tworzeniu kodu
 
 Szczegóły w [`docs/ai-usage.md`](ai-usage.md): asystenci AI (Claude Code, ChatGPT/Codex) pomagali pisać kod;

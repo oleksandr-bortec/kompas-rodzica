@@ -29,7 +29,7 @@ export default function WhyPage() {
         <Panel className="mb-4">
           <p className="kr-caption text-kr-text-2">Wyliczenie kwoty</p>
           <div className="mt-3 grid grid-cols-[1fr_auto] gap-y-2 tabular">
-            <span className="text-kr-text-2">Podstawa wymiaru <SourceTag source={persona.id === "custom" ? "user" : "zus"} /></span>
+            <span className="text-kr-text-2">Podstawa wymiaru zasiłku <SourceTag source={persona.id === "custom" ? "user" : "zus"} /></span>
             <span className="text-right font-semibold">{formatPLN(base)}</span>
             <span className="text-kr-text-2">× procent zasiłku</span>
             <span className="text-right font-semibold">{String(main.ratePercent).replace(".", ",")}%</span>

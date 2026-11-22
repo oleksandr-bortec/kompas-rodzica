@@ -16,7 +16,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Kompas Rodzica",
+  title: { default: "Kompas Rodzica", template: "%s · Kompas Rodzica" },
   description:
     "Zasiłkowy Przewodnik Przyszłego Rodzica — sprawdź, co Ci przysługuje, w 3 minuty.",
   manifest: "/manifest.webmanifest",

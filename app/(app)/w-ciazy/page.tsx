@@ -1,7 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpen, Building2, Landmark } from "lucide-react";
 import { PageHeader, Panel, ToneBox } from "@/components/kr/ui";
 import { getParams } from "@/lib/engine";
+
+export const metadata: Metadata = { title: "W ciąży" };
 
 /**
  * Wymaganie (a): świadczenia w czasie ciąży — także gdy prawa NIE ma.

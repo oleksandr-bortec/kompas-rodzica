@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Check, X } from "lucide-react";
 import { PageHeader, Panel } from "@/components/kr/ui";
 
@@ -8,9 +9,11 @@ const DOES = [
 const DOESNT = [
   "Nie liczy kwot, okresów ani terminów — robi to przejrzysty silnik reguł, sprawdzony testami.",
   "Nie wydaje decyzji zamiast ZUS — wynik to informacja, a nie decyzja.",
-  "Nie widzi numeru PESEL ani imion — identyfikatory są maskowane przed wysłaniem.",
-  "Nie odpowiada spoza materiałów ZUS — mówi „nie wiem” i proponuje pytanie przez PUE/eZUS.",
+  "Nie przechowuje danych osobowych — w schemacie odczytu nie ma imion, numerów PESEL ani adresów, a wgrany plik nie jest zapisywany. Do wyjaśnień AI dostaje fakty bez imion i liczb.",
+  "Nie wymyśla faktów — wyjaśnia tylko dane z Twojego planu. Gdy AI jest niedostępne, pokazujemy gotowe wyjaśnienie bez AI.",
 ];
+
+export const metadata: Metadata = { title: "AI w aplikacji" };
 
 /** Strona „AI w aplikacji" (wymóg wyzwania: lista funkcji AI). */
 export default function AiPage() {

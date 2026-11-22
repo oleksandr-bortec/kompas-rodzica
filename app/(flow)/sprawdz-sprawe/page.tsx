@@ -5,15 +5,18 @@ import { BookOpen, FileText, Loader2, Sparkles, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FlowShell } from "@/components/kr/flow-shell";
-import { Panel, SourceTag, ToneBox } from "@/components/kr/ui";
+import { Panel, SourceTag, SymulacjaBadge, ToneBox } from "@/components/kr/ui";
 import { buildPlan } from "@/lib/engine";
 import type { CaseExtraction, ExtractedField } from "@/lib/ai/case-schema";
 import { caseToPlanInput, compareWithDecision } from "@/lib/ai/to-plan-input";
 import { SAMPLE_CASES } from "@/lib/mocks/sample-cases";
-import { formatPLN } from "@/lib/format";
+import { formatPLN, variantText } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 type Step = "pick" | "reading" | "confirm" | "result";
+
+/** Same limit as /api/cases/extract (Vercel rejects larger request bodies before the API). */
+const MAX_UPLOAD_MB = 4;
 
 type FieldKey =
   | "event.type" | "event.date" | "insurance.title" | "insurance.from" | "insurance.to" | "insurance.sickness"
@@ -59,19 +62,38 @@ export default function CheckCasePage() {
   const [data, setData] = useState<CaseExtraction | null>(null);
   const [source, setSource] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const [isDemo, setIsDemo] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function upload(file: File) {
     setError(null);
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      setError("Obsługujemy tylko pliki PDF.");
+      return;
+    }
+    if (file.size > MAX_UPLOAD_MB * 1024 * 1024) {
+      setError(`Plik jest za duży (limit ${MAX_UPLOAD_MB} MB). Wgraj mniejszy skan albo tylko najważniejsze strony.`);
+      return;
+    }
     setSource(file.name);
+    setIsDemo(false);
     setStep("reading");
     const body = new FormData();
     body.append("file", file);
     try {
       const res = await fetch("/api/cases/extract", { method: "POST", body });
-      const json = (await res.json()) as { extraction?: CaseExtraction; error?: string; fallback?: boolean };
-      if (!res.ok || !json.extraction) {
-        setError(json.fallback ? `${json.error} Wybierz przykładową sprawę poniżej.` : (json.error ?? "Nie udało się odczytać pliku."));
+      // Errors from the platform (e.g. 413, 504) are not JSON.
+      const json = (await res.json().catch(() => null)) as { extraction?: CaseExtraction; error?: string; fallback?: boolean } | null;
+      if (!res.ok || !json?.extraction) {
+        setError(
+          json?.error
+            ? json.fallback ? `${json.error} Wybierz przykładową sprawę poniżej.` : json.error
+            : res.status === 413
+              ? `Plik jest za duży (limit ${MAX_UPLOAD_MB} MB).`
+              : res.status === 504
+                ? "Odczyt trwał zbyt długo. Spróbuj z mniejszym plikiem albo wybierz przykładową sprawę."
+                : `Nie udało się odczytać pliku (kod ${res.status}). Spróbuj ponownie albo wybierz przykładową sprawę.`,
+        );
         setStep("pick");
         return;
       }
@@ -92,7 +114,7 @@ export default function CheckCasePage() {
   }, [step, data]);
 
   return (
-    <FlowShell title="Sprawdź sprawę" right={<span className="kr-small text-kr-text-2">Dla jury i rodziców</span>}>
+    <FlowShell right={<span className="kr-small text-kr-text-2">Dla jury i rodziców</span>}>
       <h1 className="kr-h1">Sprawdź sprawę</h1>
 
       {step === "pick" && (
@@ -132,6 +154,7 @@ export default function CheckCasePage() {
                 onClick={() => {
                   setError(null);
                   setSource(sc.title);
+                  setIsDemo(true);
                   setData(sc.extraction);
                   setStep("confirm");
                 }}
@@ -158,6 +181,11 @@ export default function CheckCasePage() {
       {step === "confirm" && data && (
         <>
           <p className="mt-2 text-kr-text-2">Sprawdź odczytane dane. Pola z niższą pewnością są podświetlone — popraw je, jeśli trzeba.</p>
+          {isDemo && (
+            <p className="mt-3 flex flex-wrap items-center gap-2 kr-small text-kr-text-2">
+              <SymulacjaBadge /> Przykład z fikcyjnymi danymi — odczyt przygotowany wcześniej, bez wywołania AI.
+            </p>
+          )}
           <Panel className="mt-6">
             <p className="kr-small text-kr-text-2">
               Rozpoznane dokumenty: <span className="font-medium text-kr-text">{data.documents.map((d) => d.form).join(", ") || "—"}</span>
@@ -253,7 +281,7 @@ export default function CheckCasePage() {
                     <dt className="text-kr-text-2">Wypłaca</dt>
                     <dd className="font-semibold">{{ platnik: "pracodawca (płatnik)", ZUS: "ZUS", nieznany: "do ustalenia" }[result.plan.payer.A]}</dd>
                     <dt className="text-kr-text-2">Wariant</dt>
-                    <dd className="font-semibold">{result.plan.variantApplied === "81.5" ? "81,5%" : "100% + 70%"}</dd>
+                    <dd className="font-semibold">{variantText(result.plan)}</dd>
                     <dt className="text-kr-text-2">Zasiłek za pełny miesiąc</dt>
                     <dd className="font-heading text-lg font-extrabold text-kr-primary-dark">
                       {result.plan.monthly.A !== null ? formatPLN(result.plan.monthly.A) : "— (brak wynagrodzeń w aktach)"}

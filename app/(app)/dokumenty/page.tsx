@@ -8,7 +8,7 @@ import { FormDownload } from "@/components/kr/form-download";
 import { SimAction } from "@/components/kr/sim-action";
 import { PageHeader, Panel, SymulacjaBadge } from "@/components/kr/ui";
 import type { DocumentItem } from "@/lib/engine";
-import { formatDate } from "@/lib/format";
+import { formatDate, variantText } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 const WHERE_ICON = { pracodawca: Building2, ZUS: Landmark, "USC / gov.pl": ScrollText, "sąd": Gavel } as const;
@@ -72,7 +72,7 @@ function DocumentRow({ d, storageKey, parentName }: { d: DocumentItem; storageKe
 export default function DocumentsPage() {
   const { persona, plan } = usePlan();
   const docs = plan.documents;
-  const variantLabel = plan.variantApplied === "81.5" ? "81,5%" : "100% + 70%";
+  const variantLabel = variantText(plan);
   const name = (who: "A" | "B") => (who === "A" ? persona.a.name : persona.b?.name ?? "");
 
   return (
@@ -135,7 +135,7 @@ export default function DocumentsPage() {
             <p className="mt-1 kr-small text-kr-text-2">Pełny lub skrócony — wniosek online w gov.pl.</p>
             <div className="mt-4 grid gap-2">
               <SimAction variant="outline" label="Zamów odpis skrócony" title="Wniosek o odpis aktu urodzenia" description="Odpis skrócony, wysyłka elektroniczna." done="Wniosek złożony. Odpis otrzymasz w skrzynce gov.pl." />
-              <a href="https://www.gov.pl/web/gov/uzyskaj-odpis-aktu-urodzenia" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-1 kr-small font-medium text-kr-primary hover:underline">
+              <a href="https://www.gov.pl/web/gov/uzyskaj-odpis-aktu-stanu-cywilnego-urodzenia-malzenstwa-zgonu" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-1 kr-small font-medium text-kr-primary hover:underline">
                 Usługa na gov.pl <ExternalLink className="size-3.5" aria-hidden />
               </a>
             </div>
