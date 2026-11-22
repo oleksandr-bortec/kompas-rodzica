@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
-import { SEGMENT_LABEL } from "@/lib/format";
+import { monthShort, SEGMENT_LABEL } from "@/lib/format";
+import { addDays } from "@/lib/engine/dates";
 export interface TimelineSegment {
   parent: "A" | "B";
   kind: string;
@@ -17,15 +18,24 @@ function shade(parent: "A" | "B", percent: number) {
   return `rgba(${base},${alpha})`;
 }
 
+/** "mar 27": month and year of the date `weeks` after the event. */
+function axisLabel(startDate: string, weeks: number) {
+  const d = addDays(startDate, weeks * 7);
+  return `${monthShort(d.slice(0, 7))} ${d.slice(2, 4)}`;
+}
+
 export function Timeline({
   segments,
   nameA,
   nameB,
+  startDate,
   className,
 }: {
   segments: TimelineSegment[];
   nameA: string;
   nameB?: string;
+  /** Event date (YYYY-MM-DD): axis shows months instead of week numbers. */
+  startDate?: string;
   className?: string;
 }) {
   if (segments.length === 0) {
@@ -61,10 +71,12 @@ export function Timeline({
                     }}
                     title={`${SEGMENT_LABEL[s.kind] ?? s.kind} · ${s.weeks} tyg. · ${pct(s.percent)}`}
                   >
-                    <span className={cn("truncate kr-caption", light ? (row.parent === "A" ? "text-kr-primary-dark" : "text-[#3E41A0]") : "text-white")}>
-                      {(s.weeks / total) * 100 < 14
-                        ? pct(s.percent)
-                        : `${(SEGMENT_LABEL[s.kind] ?? s.kind).replace("Urlop ", "")} · ${pct(s.percent)}`}
+                    <span className={cn("whitespace-nowrap kr-caption", light ? (row.parent === "A" ? "text-kr-primary-dark" : "text-[#3E41A0]") : "text-white")}>
+                      {(s.weeks / total) * 100 >= 45
+                        ? `${(SEGMENT_LABEL[s.kind] ?? s.kind).replace("Urlop ", "")} · ${pct(s.percent)}`
+                        : (s.weeks / total) * 100 >= 15
+                          ? pct(s.percent)
+                          : ""}
                     </span>
                   </div>
                 );
@@ -75,7 +87,7 @@ export function Timeline({
       <div className="relative h-4 kr-caption font-normal text-kr-text-2">
         {ticks.map((t) => (
           <span key={t} className="absolute -translate-x-1/2 first:translate-x-0" style={{ left: `${((t - offset) / total) * 100}%` }}>
-            {t === 0 ? "start" : `${t} tyg.`}
+            {startDate ? axisLabel(startDate, t) : t === 0 ? "start" : `${t} tyg.`}
           </span>
         ))}
       </div>
